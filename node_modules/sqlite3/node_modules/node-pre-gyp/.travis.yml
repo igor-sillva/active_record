@@ -1,0 +1,32 @@
+language: cpp
+
+env:
+  matrix:
+   - export NODE_VERSION="0.8"
+   - export NODE_VERSION="0.10"
+  global:
+   - secure: F+sEL/v56CzHqmCSSES4pEyC9NeQlkoR0Gs/ZuZxX1ytrj8SKtp3MKqBj7zhIclSdXBz4Ev966Da5ctmcTd410p0b240MV6BVOkLUtkjZJyErMBOkeb8n8yVfSoeMx8RiIhBmIvEn+rlQq+bSFis61/JkE9rxsjkGRZi14hHr4M=
+   - secure: o2nkUQIiABD139XS6L8pxq3XO5gch27hvm/gOdV+dzNKc/s2KomVPWcOyXNxtJGhtecAkABzaW8KHDDi5QL1kNEFx6BxFVMLO8rjFPsMVaBG9Ks6JiDQkkmrGNcnVdxI/6EKTLHTH5WLsz8+J7caDBzvKbEfTux5EamEhxIWgrI=
+   - secure: ovgkAH1h18pGmoYWN/2tWLF1lqaAK74eK1vnNFB5FMq3wTZYXpzM1W9nT3uqaDsNBUbs/groMcCDU/WBvfQtz9DcocVkuSCVgQ+6MaVVIuH7z7erfIe2sNdq0yhjT4KgBjTZcu6ccVSLjNNQwWctOiPuVgMOLacpN1PuPfs7KCk=
+
+before_install:
+- echo $NODE_VERSION
+- git clone https://github.com/creationix/nvm.git ../.nvm
+- source ../.nvm/nvm.sh
+- nvm install $NODE_VERSION
+- nvm use $NODE_VERSION
+- node --version
+- npm --version
+
+install:
+- npm install
+
+before_script:
+- npm test
+
+script:
+- true
+
+after_success:
+# publish to npm if this is a tag
+- if [[ $TRAVIS_BRANCH == `git describe --tags --always HEAD` ]] && [[ $NODE_VERSION == "0.10" ]]; then npm publish --silent --email=dane@dbsgeo.com --_auth=$NPM_AUTH; fi;

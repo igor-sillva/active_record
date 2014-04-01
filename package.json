@@ -1,0 +1,34 @@
+{
+	"name" : "active_record",
+	"description": "Rails ActiveRecord inspired for Nodejs.",
+	"version" : "0.0.4",
+	"main": "./index",
+	"id": "active_record",
+	"_id": "active_record@0.0.4",
+	"license": "GPLv3",
+	"author": {
+		"name": "Igor Michael",
+		"email": "3kg4kr@gmail.com"
+	},
+	"dependencies": {
+		"underscore": "1.4.4",
+		"inflections": "0.0.0",
+		"any-db": "0.3.5",
+		"mysql": "2.0.0-alpha7",
+		"pg": "0.12.3",
+		"sqlite3": "*"
+	},
+	"devDependencies": {
+		"underscore": "1.4.4",
+		"inflections": "0.0.0",
+		"any-db": "0.3.5",
+		"mysql": "2.0.0-alpha7",
+		"pg": "0.12.3",
+		"sqlite3": "*"
+	},
+	"homepage": "https://github.com/3kg4kR/active_record.git",
+  	"repository": {
+    	"type": "git",
+    	"url": "git://github.com/3kg4kR/active_record.git"
+  	}
+}
