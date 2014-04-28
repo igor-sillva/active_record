@@ -1,0 +1,23 @@
+{
+	"dev": {
+	    "driver": "mysql",
+	    "hostname": "localhost",
+	    "port": "3306",
+	    "user": "root",
+	    "password": "",
+	    "database": "test"
+	},
+
+	"test": {
+	    "driver": "sqlite3",
+	    "filename": "./database"
+	},
+
+	"prod": {
+	    "driver": "pg",
+	    "user": "test",
+	    "password": "test",
+	    "host": "localhost",
+	    "database": "mydb"
+	}
+}

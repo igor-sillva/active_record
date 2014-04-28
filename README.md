@@ -5,7 +5,7 @@ Compatible with: (mysql, postgresql, sqlite3)
 
 ## VERSION
 	
-	0.0.4
+	0.0.5
 
 ## Synopsis
 

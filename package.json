@@ -1,10 +1,10 @@
 {
 	"name" : "active_record",
 	"description": "Rails ActiveRecord inspired for Nodejs.",
-	"version" : "0.0.4",
+	"version" : "0.0.5",
 	"main": "./index",
 	"id": "active_record",
-	"_id": "active_record@0.0.4",
+	"_id": "active_record@0.0.5",
 	"license": "GPLv3",
 	"author": {
 		"name": "Igor Michael",

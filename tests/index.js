@@ -1,21 +1,14 @@
 var ActiveRecord = require('../lib/base');
+var _ = require('./helpers.js');
 
-ActiveRecord.configure_connection({
-	driver: 'mysql',
-	user: 'root',
-	password: '',
-	port: 3306,
-	hostname: 'localhost',
-	database: 'search',
-	pool: true
-})
-//.establish_connection();
+ActiveRecord.configure_connection('./database.json');
+ActiveRecord.establish_connection();
 
 /*
 *	Modules
 */
 var User = require('./user.js');
 
-User.all();
-
-console.log(User)
+setTimeout(function() {
+	ActiveRecord.close_connection();
+}, 1000);

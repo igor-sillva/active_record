@@ -5,6 +5,7 @@ module.exports = User
 
 inherits(User, ActiveRecord)
 function User (){
-	this.attr_accessor(arguments);
+	this.attributes(arguments[0]);
 }
 User.super_();
+User.set('table_name', 'users');

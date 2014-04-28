@@ -2,7 +2,9 @@
 
 ## 0.0.5 / 2013-12-06 ##
 
-	- Create Events Callback (before_[create, update, destroy], [create, update, destroy], after_[create, update, destroy])
+	- Create Events Callback (before_[create, update, destroy], after_[create, update, destroy])
+	- CACHE
+	- Fixies Bugs
 
 ## 0.0.4 / 2013-08-28 ##
 
