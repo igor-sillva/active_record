@@ -3,6 +3,8 @@
 Simplify yours queries, transactions, relations, etc.
 Compatible with: (mysql, postgresql, sqlite3)
 
+[![Build Status](https://travis-ci.org/3kg4kR/active_record.svg?branch=master)](https://travis-ci.org/3kg4kR/active_record)
+
 ## VERSION
 	
 	0.0.5
