@@ -9,3 +9,5 @@ function User (){
 }
 User.super_();
 User.set('table_name', 'users');
+User.belongs_to('phones')
+User.has_many('phones')

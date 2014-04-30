@@ -1,9 +1,15 @@
 # Changes #
 
+## 0.0.6 / 2014-04-29 ##
+
+	- New Methods for make Queries more elegants. ù.ù :3
+	- Fixies more Bugs
+	- Associations Methods
+
 ## 0.0.5 / 2013-12-06 ##
 
 	- Create Events Callback (before_[create, update, destroy], after_[create, update, destroy])
-	- CACHE
+	- Created the CACHE
 	- Fixies Bugs
 
 ## 0.0.4 / 2013-08-28 ##
