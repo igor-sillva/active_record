@@ -6,8 +6,8 @@ Compatible with: (mysql, postgresql, sqlite3)
 [![Build Status](https://travis-ci.org/3kg4kR/active_record.svg?branch=master)](https://travis-ci.org/3kg4kR/active_record)
 
 ## VERSION
-	
-	0.0.6
+
+	0.0.7
 
 ## Synopsis
 
@@ -87,14 +87,14 @@ Create a model:
 		if (data.role_id == 1){
 			console.log("Error on create this user...")
 			return this.response_callback(false);
-		}	
+		}
 		return this.response_callback(true);
 	})
 
 	Model.on('before_destroy', function (data){
 		if (data.id != 1){
 			return this.response_callback(true);
-		}	
+		}
 		return this.response_callback(false);
 	})
 ```
@@ -104,7 +104,7 @@ Example:
 	// users_controller.js
 	Model.create({ name: 'Foo', password: 'Bar' }, function(data){ ... })
 	Model.destroy(1, function(data){ ... })
-	Model.update(2, {name: 'Bar', password: 'Foo'}, function(data){ ... })	
+	Model.update(2, {name: 'Bar', password: 'Foo'}, function(data){ ... })
 	Model.find([1,2,3], function(data){ ... })
 	Model.where("name = 'foo'", function(data){ ... })
 
@@ -116,8 +116,8 @@ Example:
 				phone.update_attributes({foo: `bar`})
 			Phone.all(function (data){
 				console.log(data);
-			})	
-		})	
+			})
+		})
 	})
 
 
@@ -152,11 +152,11 @@ Example:
 	}, ['xza', 1], function (data){
 		console.log(data)
 	})
-``` 
+```
 
 ## API
 
-See the [API documentation](https://github.com/3kg4kR/active_record/wiki) in the wiki. 
+See the [API documentation](https://github.com/3kg4kR/active_record/wiki) in the wiki.
 
 ## License
 
