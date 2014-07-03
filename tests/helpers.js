@@ -18,6 +18,7 @@ exports.to_crypto = String.prototype.to_crypto = function (key){
 	.digest("hex");
 }
 
+
 exports.makeArray = Array.new = function (length){
 	array = [];
 	if(!length) return []

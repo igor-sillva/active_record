@@ -1,0 +1,154 @@
+<!DOCYTIPE html 5>
+<html>	
+	<head>
+		<title>Active Record</title>
+		<style type="text/css">
+			body {
+				width: 900px;
+				padding: 50px;
+				margin: 0 auto;
+			}
+
+			table {
+				width: 100%
+			}
+
+			table td ul li{
+				list-style: none;
+				float: left;
+				padding-left: 5px;
+			}
+
+			table th:nt-child {
+				width: 100px;
+			}
+		</style>
+	</head>
+
+	<body>
+		<h1>Active Record Test</h1>
+		<section>
+			<form action="/search" method="GET" name="search">
+				<input type="search" placeholder="Search" name="q">
+				<input type="submit" value="Search">
+			</form>	
+		</section>
+		<hr />
+		<section>
+			<form action="/new" method="POST" name="create">
+				<label>Name:</label>
+				<input type="text" placeholder="Name" name="name" />
+				<label>Password</label>
+				<input type="password" placeholder="Password" name="password" />
+				<input type="submit" value="Create" class="ui button">
+			</form>
+			<div class="alert">
+				<ul></ul>
+			</div>
+		</section>
+		<hr />
+		<section>
+			<table class="response">
+				<thead>
+					<tr>
+						<th>Name</th>
+						<th>Password</th>
+						<th>Actions</th>
+					</tr>
+				</thead>
+				<tbody class="response-body"></tbody>
+			</table>
+		</section>
+
+		<!-- JUST FOR FUN -->	
+
+		<script type="text/javascript">
+			var search = document.querySelector('form[name="search"]');
+			var Alert = document.querySelector('.alert ul')
+			
+			search.addEventListener('submit', function (evt){
+				evt.preventDefault();
+
+				var xhr = new XMLHttpRequest();
+				var value = evt.target[0].value;
+				var response = document.querySelector('.response-body');
+				
+				xhr.open("GET", this.action+"?q="+value , false);
+				xhr.send();
+
+				if (xhr.status == 200){
+					response.innerHTML = "";
+					json = JSON.parse(xhr.responseText);
+
+					if (json.message){
+						response.innerHTML = "<tr><td colspan='2'>"+ json.message +"</td></tr>";
+					} else {
+
+						for (i in json){
+							tr = document.createElement('tr');
+							tds = "</td><td>"+ json[i].name +"</td><td>"+ json[i].password +"</td><td><ul><li><a href='/delete' data-id='"+ json[i].id +"' class='delete'>Excluir</a></li><li><a href='/update' data-id='"+ json[i].id +"' class='update'>Editar</a></li></td>";
+							tr.innerHTML = tds;
+							response.appendChild(tr)
+						}
+
+						deletes = document.querySelectorAll('.delete');
+
+						[].forEach.call(deletes, function (del){
+							del.addEventListener('click', function (evt){
+								evt.preventDefault();
+
+								var xhr = new XMLHttpRequest();
+								xhr.open("POST", '/delete', false);
+								xhr.send(JSON.stringify({id :this.dataset.id}));
+								
+								var json = JSON.parse(xhr.responseText);
+
+								if (xhr.status != 420){
+									this.parentElement.parentElement.parentElement.parentElement.remove();
+								}	
+								Alert.innerHTML = "<li>"+ json.message + "</li>";
+							})
+						})
+					}
+
+				}
+
+			})
+		</script>
+
+		<script type="text/javascript">
+			var create = document.querySelector('form[name="create"]');
+			
+			create.addEventListener('submit', function (evt){
+				evt.preventDefault();
+
+				var xhr = new XMLHttpRequest();
+				var name = evt.target[0].value;
+				var password = evt.target[1].value;
+
+				user = {
+					name: name,
+					password: password
+				}
+				
+				xhr.open("POST", this.action, false);
+				xhr.send(JSON.stringify(user));
+
+				json = JSON.parse(xhr.response);
+
+				if (xhr.status == 420){
+					Alert.innerHTML = "";
+					for ( i in json){	
+						li = document.createElement('li')
+						li.innerHTML = json[i];
+						Alert.appendChild(li);
+					}
+				} else {
+					alert(json.message);
+					window.location = "/";
+				}
+
+			})
+		</script>
+	</body>
+</html>

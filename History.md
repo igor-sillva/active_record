@@ -1,5 +1,12 @@
 # Changes #
 
+## 0.0.7 / 2014-05-13 ##
+
+	- Now, when you find return a instance of a model...
+	- Fixies more Bugs
+	- Create ActiveRecord::Inflections
+	- Remove Inflections Dependencie
+
 ## 0.0.6 / 2014-04-29 ##
 
 	- New Methods for make Queries more elegants. ù.ù :3
