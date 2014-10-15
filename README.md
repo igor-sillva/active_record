@@ -166,16 +166,15 @@ Create a model:
 Example:
 ``` js
 	// users_controller.js
-	Model.create({ name: 'Foo', password: 'Bar' }, function(data){ ... })
-	Model.destroy(1, function(data){ ... })
-	Model.update(2, {name: 'Bar', password: 'Foo'}, function(data){ ... })
-	Model.find([1,2,3], function(data){ ... })
-	Model.where("name = 'foo'", function(data){ ... })
+	User.create({ name: 'Foo', password: 'Bar' }, function(data){ ... })
+	User.destroy(1, function(data){ ... })
+	User.update(2, {name: 'Bar', password: 'Foo'}, function(data){ ... })
+	User.find([1,2,3], function(data){ ... })
+	User.where("name = 'foo'", function(data){ ... })
 
 	// HasMany Example
-	Model.find(1, function (data){
-		model = new Model(data[0]);
-		model.phones(function (phone, Phone){
+	User.find(1, function (user){
+		user[0].phones(function (phone, Phone){
 			if (phone.length == 1)
 				phone[0].update_attributes({foo: `bar`})
 			Phone.all(function (data){
