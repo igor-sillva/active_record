@@ -45,10 +45,23 @@ var User = require('./user.js');
 
 // 	})
 // })
-// user = User.create({name: "", password: "1234567891"})
-// User.first()
-// User.last()
-
+user = User.create({name: "KikoOOo", password: "1234567891"})
+user1 = User.create({name: "", password: ""})
+user2 = User.create({name: "IgorMichael", password: "1234567892"})
+console.log(user.errors.full_messages)
+console.log(user1.errors.full_messages)
+console.log(user2.errors.full_messages)
+// User.all({
+// 	order: 'id DESC',
+// 	limit: 3
+// }, console.log)
+User.last(function (user){
+	phone = user[0]
+	.phones()
+	.create({
+		number: "2321312312"
+	});
+})
 // User.delete_all()
 // User.delete("36")
 /*
@@ -57,37 +70,3 @@ var User = require('./user.js');
 setTimeout(function() {
 	Base.close_connection();
 }, 1000);
-
-
-function Errro (){
-	this.messages =  {},
-	this.add = function (item, message){
-		if (!Array.isArray(this.messages[item])) this.messages[item] = [];
-		this.messages[item].push(message);
-	}
-}
-
-function Test (){
-	this.prototype.errors = new Errro
-}
-
-function B(){
-	Test.call(this);
-}
-
-inherits = require('util').inherits;
-inherits(U, B)
-function U(){}
-U.super_()
-
-a = new U
-b = new U
-
-a.errors.add("name", "Is too long")
-a.errors.add("name", "Is ugly")
-a.errors.add("password", "Lol")
-
-b.errors.add("name", "MotherFucher")
-
-console.log(a.errors.messages)
-console.log(b.errors.messages)

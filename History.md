@@ -1,5 +1,10 @@
 # Changes #
 
+## 0.1.0 / 2014-10-15 ##
+
+	- Fixies more Bugs (ValidationsExceptions, Validations, Associations Class)
+	- Remove CACHE
+
 ## 0.0.7 / 2014-05-13 ##
 
 	- Now, when you find return a instance of a model...
@@ -25,12 +30,12 @@
 	- Create Helper Methods
 
 ## 0.0.3 / 2013-03-19 ##
-	
+
 	- Remove the dependencie Selfish, and create a code with Pure JS.
 
 ## 0.0.2 / 2013-03-12 ##
 
-	- Inherits the Class Query, Transaction to ActiveRecord. 
+	- Inherits the Class Query, Transaction to ActiveRecord.
 	- Add Manual configuration to Active Record.
 
 ## 0.0.1 / 2013-03-09 ##

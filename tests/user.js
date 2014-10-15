@@ -1,14 +1,12 @@
 /*
 *	Require
 *	-> ActiveRecord.Base # require('active_record').Base
-*	-> Inherits          # require('util').inherits
 */
-var Base = require('../lib/base')
-	,	inherits = require('util').inherits;
+var Base = require('../lib/base');
 /* Exports the module */
 module.exports = User
-/* Inherits the module to ActiveRecord.Base */
-inherits(User, Base)
+/* Extends the module to new ActiveRecord.Base */
+Base.extend(User, Base)
 /* Create the Class
 *	Obs:
 *	-> Singular name
@@ -37,18 +35,18 @@ function User (){
 	*	-> validate_exclusion_of
 	*	-> validate_format_of
 	*/
-	this.validate_uniqueness_of('name');
+	// this.validate_uniqueness_of('name');
 	this.validate_presence_of('name', {on: "create"});
 	// this.validate_presence_of('password');
 	// this.validate_inclusion_of('name', {in: ["Irmao Sola"]})
 	// this.validate_exclusion_of('name', {in: ["root", "admin"]})
-	this.validate_length_of('name', {
-		minimum: 5,
-		maximum: 20
-	});
-	this.validate_length_of('password', {minimum: 11});
-	this.validate_format_of('name', {'with': /[a-zA-Z]/g, message: "only letters"});
-	this.validate_numericality_of('password', {even: true});
+	// this.validate_length_of('name', {
+	// 	minimum: 6,
+	// 	maximum: 20
+	// });
+	this.validate_length_of('password', {minimum: 5});
+	// this.validate_format_of('name', {'with': /[a-zA-Z]/g, message: "only letters"});
+	// this.validate_numericality_of('password', {even: true});
 	this.has_secure_password(); // Call this function after all validations
 	/* Configure the Callbacks
 	*	-> before_create
@@ -62,13 +60,7 @@ function User (){
 	// this.on('after_destroy', function show_message(data){
 	// 	console.log("User #%s destroyed.", data);
 	// })
-
-	this.on('after_create', function flash_message (data){
-		console.log("User #%s was created.", data.insertId)
-	})
 }
-/* Execute this method to create Class methods */
-User.super_();
 /*	Class Methods:
 *		Actions: 					*	Calculations:
 *			-> create 				*		-> count
