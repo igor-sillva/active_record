@@ -7,7 +7,7 @@ Compatible with: (mysql, postgresql, sqlite3)
 
 ## VERSION
 
-	0.1.0
+	0.1.1
 
 ## Synopsis
 
@@ -75,7 +75,7 @@ Create a model:
 	/* Exports the module */
 	module.exports = User
 	/* Extends the module to new ActiveRecord.Base */
-	ActiveRecord.Base.extend(User, Base)
+	ActiveRecord.Base.extend_to(User)
 	/* Create the Class
 	*	Obs: -> Singular name
 	*/
