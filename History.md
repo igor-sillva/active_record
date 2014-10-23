@@ -1,5 +1,9 @@
 # Changes #
 
+## 0.1.1  / 2014-10-23 ##
+
+	- Run funny
+
 ## 0.1.0 / 2014-10-15 ##
 
 	- Fixies more Bugs (ValidationsExceptions, Validations, Associations Class)

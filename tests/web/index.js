@@ -4,7 +4,6 @@ var Base = require('../../lib/base');
 // var Inflections = require('../pt-BR');
 var fs = require('fs');
 var querystring = require('querystring');
-var _ = require('../helpers');
 
 Base.configure_connection('../database.json');
 Base.establish_connection();
@@ -27,13 +26,29 @@ http.createServer(
     	response.end(index);
       console.timeEnd('Index Action');
 
+      // if (request.method=="POST")
+      // {
+      //   request.on('data',
+      //     function (data)
+      //     {
+
+      //     }
+      //   );
+
+      //   request.on('end',
+      //     function ()
+      //     {
+
+      //     }
+      //   );
+      // }
+
     }
     else if (params.pathname=="/search")
     {
 
       console.time('Search Action');
     	response.writeHead(200, { 'Content-Type': 'application/json', "Access-Control-Allow-Origin":"*" });
-
     	var query=params.query.q.split(' ').map(function (v){ return "name LIKE '%"+escape(v)+"%'"}).join(' OR ');
 
     	User.where(query, function (users)
@@ -71,23 +86,18 @@ http.createServer(
     		request.on("end",
           function ()
           {
-      			 // user = new
-      			User.create(JSON.parse(user));
-      			 // console.log(user._attributes)
-    			   // user.save();
+      			user = User.create(JSON.parse(user));
 
-      			if (User.errors.size() > 0)
+      			if (user.errors.size > 0)
             {
       				response.writeHead(420)
-      				response.write(JSON.stringify(User.errors.full_messages()));
-      				User.errors.clear();
+      				response.write(JSON.stringify(user.errors.full_messages));
+      				user.errors.clear;
       			}
             else
             {
       				response.write(JSON.stringify({message: "User create with success!"}));
       			}
-
-      			process.ACTIVERECORD.CACHE = []
       			response.end();
       		}
         )
@@ -103,6 +113,54 @@ http.createServer(
 
     	}
       console.timeEnd('New Action');
+
+    }
+    else if (params.pathname=="/update")
+    {
+      console.time('Update Action');
+      response.writeHead(200, {
+        'Content-Type': 'application/json',
+        "Access-Control-Allow-Origin":"*"
+      });
+      if (request.method=="POST")
+      {
+        var user = "";
+        request.on("data",
+          function (data){
+           user += data;
+          }
+        )
+
+        request.on("end",
+          function ()
+          {
+            var user=new User(JSON.parse(user));
+            user.update_attributes(
+              function (r){
+                if(r===false)
+                {
+                  response.writeHead(420);
+                  response.write(JSON.stringify({message: "Error on update user."}));
+                }
+                else
+                {
+                  response.write(JSON.stringify({message: "User #"+user.id+" updated with success."}));
+                }
+                response.end();
+            });
+          }
+        )
+        console.timeEnd('Delete Action')
+
+      }
+      else
+      {
+
+          response.write(JSON.stringify({message: "You not authorized to this action."}))
+          response.end();
+
+      }
+      console.timeEnd('Update Action');
 
     }
     else if (params.pathname=="/delete")
@@ -125,8 +183,8 @@ http.createServer(
     		request.on("end",
           function ()
           {
-    		  	var id=new User(JSON.parse(id));
-    		  	User.destroy(
+    		  	var user=new User(JSON.parse(id));
+    		  	user.destroy(
               function (r){
       		  		if(r===false)
                 {
@@ -139,7 +197,6 @@ http.createServer(
       		  		}
       		  		response.end();
     		  	});
-    		  	process.ACTIVERECORD.CACHE = [];
     	  	}
         )
         console.timeEnd('Delete Action')

@@ -1,3 +1,4 @@
+console.log("\033[1;31mH4CK3RS \033[1;30mD0N’T \033[1;34mT35T\033[0m !!!");
 /*
 *	Require
 *	-> ActiveRecord.Base
@@ -6,7 +7,7 @@ var Base = require('../lib/base');
 /**
 *	Configure your Inflections
 */
-// var Inflections = require('./pt-BR');
+var Inflections = require('./pt-BR');
 /*
 *	Configure the connection
 */
@@ -18,52 +19,34 @@ Base.establish_connection();
 /*
 *	Require the modules
 */
-var User = require('./user.js');
-// var Phone= require('./phones.js')
+var User  = require('./user.js');
+var Phone = require('./phones.js');
 /*
-*
+*	TEST
 */
-// User.all(function(users){
-// 	// console.log(users)
-// 	users.forEach(function(user){
-// 		console.log(user)
-// 		// user.destroy()
+// phone = Phone.create({number: '6523123131', user_id: 102});
+// for (i=0; i<100;i++)
+// user = new User({
+// 	name: 'Akrata',
+// 	password: "@kr@asdasd"
+// }).save()
 
-// 		// user.phones().create({
-// 		// 	user_id: user.id,
-// 		// 	number: "6533083315"
-// 		// })
-// 		// user.update_attributes({name: 'Kauak'})
-// 		// console.log(User.errors.full_messages());
-// 		user.phones(function(phones, Phone){
-// 			console.log(phones)
-// 			// phones[0].user(function (user){
-// 			// 	console.log(user[0])
-// 			// })
-// 			// console.log(user)
-// 		})
-
-// 	})
-// })
-user = User.create({name: "KikoOOo", password: "1234567891"})
-user1 = User.create({name: "", password: ""})
-user2 = User.create({name: "IgorMichael", password: "1234567892"})
-console.log(user.errors.full_messages)
-console.log(user1.errors.full_messages)
-console.log(user2.errors.full_messages)
-// User.all({
-// 	order: 'id DESC',
-// 	limit: 3
-// }, console.log)
-User.last(function (user){
-	phone = user[0]
-	.phones()
+User.find('last', function (user){
+	var user = user[0];
+	user.phones(function (phones){
+		if (phones[0]) phones[0].update_attributes({number: '6612312312'});
+		if (phones.length==10) user.destroy();
+	})
 	.create({
-		number: "2321312312"
-	});
+		number: '6599999999'
+	})
+	user.update_attributes({password: 'Aqdwsda'});
+	// setTimeout(function (){
+	// 	User.delete(user.get('id'))
+	// 	User.destroy(user.get('id'))
+	// }, 2000)
 })
-// User.delete_all()
-// User.delete("36")
+// User.join('phones', console.log)
 /*
 *	Close connection with Database
 */

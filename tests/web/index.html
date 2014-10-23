@@ -1,12 +1,14 @@
 <!DOCYTIPE html 5>
-<html>	
+<html>
 	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 		<title>Active Record</title>
 		<style type="text/css">
 			body {
 				width: 900px;
 				padding: 50px;
 				margin: 0 auto;
+				font-family: monospace;
 			}
 
 			table {
@@ -22,16 +24,98 @@
 			table th:nt-child {
 				width: 100px;
 			}
+
+			#loading {
+				display: none;
+				z-index: 9999;
+				position: fixed;
+				text-align: center;
+				font-weight: bold;
+				background: rgba(200,200,125,0.5);
+				padding: 10px;
+				margin-left: 400px;
+			}
+
+			.alert ul {
+				font-weight: bold;
+				display: none;
+				padding: 10px 10px 10px 40px;
+			}
+
+			.alert #error {
+				background: rgba(200,0,0,0.5);
+			}
+
+			.alert #info {
+				background: rgba(0,100,200,0.5);
+			}
+
+			.terminal {
+				position: fixed;
+				z-index: 9999;
+				width: 99%;
+				left: 5px;
+				bottom: -234px;
+				border: 1px solid #000;
+				background: rgba(0,0,0,0.5);
+				transition: bottom 1s linear 0.1s;
+				overflow: hidden;
+			}
+			.terminal .terminal-header {
+				text-align: center;
+				font-weight: bold;
+				padding-top: 5px;
+				color: #CCC;
+				border: 2px solid #000;
+			}
+			.terminal .terminal-body {
+				width: 100%;
+				height: 180px;
+				background: rgba(0,0,0,0.5);
+				color: green;
+				padding: 5px 0 0 5px;
+			}
+			.terminal .terminal-footer input {
+				width: 100%;
+				background-color: rgba(0,0,0,0.5);
+				border: 1px solid rgba(0,0,0,0.5);
+				color: green;
+			}
+
+			.show-terminal {
+				position: fixed;
+				z-index: 10000;
+				width: 100px;
+				left: 50%;
+				bottom: 0px;
+				padding: 5px;
+				margin-left: -5%;
+				border: 1px solid #000;
+				background: rgba(0,0,0,0.5);
+				text-align: center;
+				transition: bottom 1s linear 0.1s;
+			}
 		</style>
 	</head>
 
 	<body>
+		<div class="show-terminal" id="off">$_ ~:</div>
+		<div class="terminal">
+			<div class="terminal-header">/home/3kg4kR/active_record/tests</div>
+			<div class="terminal-body">
+				Oi
+			</div>
+			<div class="terminal-footer">
+				<input type="text" />
+			</div>
+		</div>
+		<div id="loading">Loading...</div>
 		<h1>Active Record Test</h1>
 		<section>
 			<form action="/search" method="GET" name="search">
 				<input type="search" placeholder="Search" name="q">
 				<input type="submit" value="Search">
-			</form>	
+			</form>
 		</section>
 		<hr />
 		<section>
@@ -43,7 +127,7 @@
 				<input type="submit" value="Create" class="ui button">
 			</form>
 			<div class="alert">
-				<ul></ul>
+				<ul id="info"></ul>
 			</div>
 		</section>
 		<hr />
@@ -53,31 +137,55 @@
 					<tr>
 						<th>Name</th>
 						<th>Password</th>
-						<th>Actions</th>
+						<th style="width: 150px">Actions</th>
 					</tr>
 				</thead>
 				<tbody class="response-body"></tbody>
 			</table>
 		</section>
 
-		<!-- JUST FOR FUN -->	
+		<!-- JUST FOR FUN -->
+		<script type="text/javascript">
+			var terminal = document.querySelector('.terminal');
+			var terminalBody = terminal.querySelector('.terminal-body');
+			var input = terminal.querySelector('.terminal-footer input');
+			var openTerminal = document.querySelector('.show-terminal');
+
+			openTerminal.addEventListener('click', function (evt){
+				if (this.id=="off"){
+					this.style.bottom = "234px";
+					this.id="on";
+					terminal.style.bottom = "0px";
+				} else {
+					this.style.bottom = "0px";
+					this.id="off";
+					terminal.style.bottom = "-234px";
+				}
+			})
+
+
+		</script>
 
 		<script type="text/javascript">
+
+			var loading = document.querySelector('#loading');
 			var search = document.querySelector('form[name="search"]');
 			var Alert = document.querySelector('.alert ul')
-			
+
 			search.addEventListener('submit', function (evt){
 				evt.preventDefault();
 
 				var xhr = new XMLHttpRequest();
 				var value = evt.target[0].value;
 				var response = document.querySelector('.response-body');
-				
+				loading.style.display = "block";
+
 				xhr.open("GET", this.action+"?q="+value , false);
 				xhr.send();
 
 				if (xhr.status == 200){
 					response.innerHTML = "";
+					loading.style.display = "none";
 					json = JSON.parse(xhr.responseText);
 
 					if (json.message){
@@ -86,7 +194,7 @@
 
 						for (i in json){
 							tr = document.createElement('tr');
-							tds = "</td><td>"+ json[i].name +"</td><td>"+ json[i].password +"</td><td><ul><li><a href='/delete' data-id='"+ json[i].id +"' class='delete'>Excluir</a></li><li><a href='/update' data-id='"+ json[i].id +"' class='update'>Editar</a></li></td>";
+							tds = "</td><td>"+ json[i].name +"</td><td>"+ json[i].password +"</td><td><ul><li><a href='/delete' data-id='"+ json[i].id +"' class='delete'>Excluir</a></li><li><a href='#!update' data-id='"+ json[i].id +"' class='update'>Editar</a></li></td>";
 							tr.innerHTML = tds;
 							response.appendChild(tr)
 						}
@@ -100,13 +208,38 @@
 								var xhr = new XMLHttpRequest();
 								xhr.open("POST", '/delete', false);
 								xhr.send(JSON.stringify({id :this.dataset.id}));
-								
+
 								var json = JSON.parse(xhr.responseText);
 
 								if (xhr.status != 420){
 									this.parentElement.parentElement.parentElement.parentElement.remove();
-								}	
+									loading.style.display = "none";
+								}
 								Alert.innerHTML = "<li>"+ json.message + "</li>";
+								Alert.id = "info";
+								Alert.style.display = "block";
+							})
+						})
+
+
+						updates = document.querySelectorAll('.update');
+
+						[].forEach.call(updates, function (del){
+							del.addEventListener('submit', function (evt){
+								evt.preventDefault();
+
+								var xhr = new XMLHttpRequest();
+								xhr.open("POST", '/update', false);
+								// xhr.send(JSON.stringify({id :this.dataset.id}));
+
+								var json = JSON.parse(xhr.responseText);
+
+								if (xhr.status != 420){
+									loading.style.display = "none";
+								}
+								Alert.innerHTML = "<li>"+ json.message + "</li>";
+								Alert.id = "info";
+								Alert.style.display = "block";
 							})
 						})
 					}
@@ -118,7 +251,7 @@
 
 		<script type="text/javascript">
 			var create = document.querySelector('form[name="create"]');
-			
+
 			create.addEventListener('submit', function (evt){
 				evt.preventDefault();
 
@@ -130,19 +263,23 @@
 					name: name,
 					password: password
 				}
-				
+
 				xhr.open("POST", this.action, false);
 				xhr.send(JSON.stringify(user));
+				loading.style.display = "block";
 
 				json = JSON.parse(xhr.response);
 
 				if (xhr.status == 420){
+					loading.style.display = "none";
 					Alert.innerHTML = "";
-					for ( i in json){	
+					for ( i in json){
 						li = document.createElement('li')
 						li.innerHTML = json[i];
 						Alert.appendChild(li);
 					}
+					Alert.id = "error"
+					Alert.style.display = "block";
 				} else {
 					alert(json.message);
 					window.location = "/";
