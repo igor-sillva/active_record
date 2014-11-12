@@ -6,7 +6,7 @@ var Base = require('../lib/base');
 /* Exports the module */
 module.exports = User
 /* Extends the module to new ActiveRecord.Base */
-Base.extend_to(User)
+Base.extend_to(User);
 /* Create the Class
 *	Obs:
 *	-> Singular name
@@ -36,14 +36,24 @@ function User (){
 	*	-> validate_format_of
 	*/
 	// this.validate_uniqueness_of('name');
-	this.validate_presence_of('name', {on: "create"});
+	this.validates('name', {
+		presence: {
+			on: 'create'
+		},
+		length: {
+			minimum: 6,
+			maximum: 50,
+			too_short: "minimum is %{count} bitch!"
+		}
+	})
+	// this.validate_presence_of('name', {on: "create"});
 	this.validate_presence_of('password');
 	// this.validate_inclusion_of('name', {in: ["Akrata"]})
 	// this.validate_exclusion_of('name', {in: ["root", "admin"]})
-	this.validate_length_of('name', {
-		minimum: 6,
-		maximum: 50
-	});
+	// this.validate_length_of('name', {
+	// 	minimum: 6,
+	// 	maximum: 50
+	// });
 	this.validate_length_of('password', {minimum: 5});
 	// this.validate_format_of('name', {'with': /[a-zA-Z]/g, message: "only letters"});
 	// this.validate_numericality_of('password', {even: true});
@@ -57,8 +67,8 @@ function User (){
 	*	-> after_update
 	*	-> after_destroy and delete
 	*/
-	this.on('after_destroy', function _show_message(data){
-		console.log("User #%s destroyed.", data);
+	this.after_destroy(function _show_message(data){
+		console.log("User #%s destroyed.", data.object.id);
 	})
 }
 /*	Class Methods:

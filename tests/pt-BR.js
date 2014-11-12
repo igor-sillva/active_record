@@ -1,10 +1,10 @@
-var Inflection = require('../lib/inflections');
+var ActiveSupport = require('../lib/active_support');
 
-Inflection.lang = 'pt-BR';
+ActiveSupport.Inflector.lang = 'pt-BR';
 
-Inflection.uncountable_words = ['tórax', 'tênis', 'ônibus', 'lápis', 'fênix'],
+ActiveSupport.Inflector.Inflections.uncountable_words = ['tórax', 'tênis', 'ônibus', 'lápis', 'fênix'],
 
-Inflection.plural_rules = [
+ActiveSupport.Inflector.Inflections.plural_rules = [
 	[/(z|r)$/i, '$1es'],
     [/$/,  's'],
     [/(s)$/i,  '$1'],
@@ -26,7 +26,7 @@ Inflection.plural_rules = [
     [/^(alem|c|p)ao$/i,  '$1aes']
 ];
 
-Inflection.singular_rules = [
+ActiveSupport.Inflector.Inflections.singular_rules = [
 	[/([^ê])s$/i, '$1'],
     [/^(á|gá|paí)s$/i, '$1s'],
     [/(r|z)es$/i, '$1'],
@@ -40,7 +40,7 @@ Inflection.singular_rules = [
     [/^(.*[^s]s)es$/i, '$1'],
     [/ães$/i, 'ão'],
     [/aes$/i, 'ao'],
-    [/ãos$/i, 'ão'],   
+    [/ãos$/i, 'ão'],
     [/aos$/i, 'ao'],
     [/ões$/i, 'ão'],
     [/oes$/i, 'ao'],

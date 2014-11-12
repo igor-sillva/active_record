@@ -21,15 +21,15 @@ console.log("\033[0m", Base.connection.settings, "\033[0m");
 */
 console.log("\033[1;36m[INFO]", "Establish the connection", "\033[0m");
 Base.establish_connection();
-console.log("\033[0m", Base.connection.connected(), "\033[0m");
+console.log("\033[0m\t\\-", Base.connection.connected(), "\033[0m");
 /*
 *	Require the modules
 */
 console.log("\033[1;36m[INFO]", "Require modules", "\033[0m");
 var User  = require('./user.js');
 var Phone = require('./phones.js');
-console.log("\033[0m", User, "\033[0m");
-console.log("\033[0m", Phone, "\033[0m");
+console.log("\033[0m\t\\-", User, "\033[0m");
+console.log("\033[0m\t\\-", Phone, "\033[0m");
 /*
 *	TEST
 */
@@ -64,19 +64,21 @@ setTimeout(function() {
 */
 setTimeout(function() {
 	console.log("\033[1;33m[WARNING]", "ACTIONS test", "\033[0m");
-	// for (i=0; i<100;i++)
-	// 	User.create({
+	// for (i=0; i<9;i++)
+	// 	new User({
 	// 		name: 'Akrata',
 	// 		password: "@kr@t@"
-	// 	})
+	// 	}).save()
 
 	User.last(function (user){
 		user = user[0];
-		User.update(user.get('id'), {name: 'Joaoaa'});
-		setTimeout(function (){
-			User.delete(user.get('id'))
-			User.destroy(user.get('id'))
-		}, 2000)
+		if(user){
+			User.update(user.get('id'), {name: 'Joaoaa'});
+			setTimeout(function (){
+				User.delete(user.get('id'))
+				User.destroy(user.get('id'))
+			}, 2000)
+		}
 	})
 }, 4000)
 /*
@@ -86,11 +88,11 @@ setTimeout(function() {
 	console.log("\033[1;33m[WARNING]", "Associations test", "\033[0m");
 	Phone.belongs_to('user');
 	Phone.find('last', function (phone){
-		phone[0].user(_data)
+		if(phone[0]) phone[0].user(_data)
 	})
 	User.has_many('phones');
 	User.first(function (user){
-		user[0].phones(_data)
+		if(user[0]) user[0].phones(_data)
 	})
 }, 10000);
 /*

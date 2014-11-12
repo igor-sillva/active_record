@@ -1,4 +1,4 @@
-<!DOCYTIPE html 5>
+<!DOCYTIPE html>
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -50,15 +50,19 @@
 				background: rgba(0,100,200,0.5);
 			}
 
+			.alert #warning {
+				background: rgba(200,200,0,0.5);
+			}
+
 			.terminal {
 				position: fixed;
 				z-index: 9999;
 				width: 99%;
 				left: 5px;
-				bottom: -234px;
+				bottom: -244px;
 				border: 1px solid #000;
 				background: rgba(0,0,0,0.5);
-				transition: bottom 1s linear 0.1s;
+				transition: bottom 0.1s linear 0.1s;
 				overflow: hidden;
 			}
 			.terminal .terminal-header {
@@ -74,7 +78,16 @@
 				background: rgba(0,0,0,0.5);
 				color: green;
 				padding: 5px 0 0 5px;
+				overflow: hidden;
+				overflow-y: visible;
 			}
+
+			.terminal-body ul {
+
+				list-style: none;
+				padding-left: 5px;
+			}
+
 			.terminal .terminal-footer input {
 				width: 100%;
 				background-color: rgba(0,0,0,0.5);
@@ -93,7 +106,7 @@
 				border: 1px solid #000;
 				background: rgba(0,0,0,0.5);
 				text-align: center;
-				transition: bottom 1s linear 0.1s;
+				transition: bottom 0.1s linear 0.1s;
 			}
 		</style>
 	</head>
@@ -103,10 +116,13 @@
 		<div class="terminal">
 			<div class="terminal-header">/home/3kg4kR/active_record/tests</div>
 			<div class="terminal-body">
-				Oi
+				<ul class="code"></ul>
 			</div>
 			<div class="terminal-footer">
-				<input type="text" />
+				<form action="/" method="POST" name="terminal-form">
+					<input type="text" />
+					<input type="submit" value="Search" style="display:none">
+				</form>
 			</div>
 		</div>
 		<div id="loading">Loading...</div>
@@ -135,6 +151,7 @@
 			<table class="response">
 				<thead>
 					<tr>
+						<th style="width: 50px">#</th>
 						<th>Name</th>
 						<th>Password</th>
 						<th style="width: 150px">Actions</th>
@@ -146,41 +163,78 @@
 
 		<!-- JUST FOR FUN -->
 		<script type="text/javascript">
+		function User () {};
+		</script>
+
+		<script type="text/javascript">
 			var terminal = document.querySelector('.terminal');
 			var terminalBody = terminal.querySelector('.terminal-body');
-			var input = terminal.querySelector('.terminal-footer input');
+			var terminalBodyUl = terminal.querySelector('.terminal-body .code');
+			var terminalForm = terminal.querySelector('form[name="terminal-form"]');
 			var openTerminal = document.querySelector('.show-terminal');
 
 			openTerminal.addEventListener('click', function (evt){
 				if (this.id=="off"){
-					this.style.bottom = "234px";
+					this.style.bottom = "244px";
 					this.id="on";
 					terminal.style.bottom = "0px";
 				} else {
 					this.style.bottom = "0px";
 					this.id="off";
-					terminal.style.bottom = "-234px";
+					terminal.style.bottom = "-244px";
 				}
+
+				var input = terminalForm.querySelector('input[type="text"]');
+				input.innerText = "";
+				input.focus();
 			})
 
+			terminalForm.addEventListener('submit', function (evt){
+				evt.preventDefault();
+				var input = evt.target[0]
+				var line = document.createElement('li');
 
+				if (input.value !== ""){
+					var exec = null;
+					var resultLine = document.createElement('li');
+
+					line.innerHTML = "$> ~: "+ input.value;
+					terminalBodyUl.appendChild(line);
+
+					try {
+						exec = eval(input.value);
+					} catch (Exception){
+						exec = Exception;
+						resultLine.style.color = 'red';
+					}
+
+					resultLine.innerHTML = exec;
+					terminalBodyUl.appendChild(resultLine);
+
+					terminalBody.scrollTop = 1000;
+				}
+
+				input.value = "";
+				input.focus();
+			})
+
+			var clear = function clear (){
+				return terminalBodyUl.innerHTML = "";
+			}
 		</script>
 
 		<script type="text/javascript">
 
 			var loading = document.querySelector('#loading');
-			var search = document.querySelector('form[name="search"]');
-			var Alert = document.querySelector('.alert ul')
+			var searchForm = document.querySelector('form[name="search"]');
+			var Alert = document.querySelector('.alert ul');
+			var response = document.querySelector('.response-body');
 
-			search.addEventListener('submit', function (evt){
-				evt.preventDefault();
-
+			User.search = function search (value){
 				var xhr = new XMLHttpRequest();
-				var value = evt.target[0].value;
-				var response = document.querySelector('.response-body');
 				loading.style.display = "block";
 
-				xhr.open("GET", this.action+"?q="+value , false);
+				xhr.open("GET", "/search?q="+value , false);
 				xhr.send();
 
 				if (xhr.status == 200){
@@ -188,14 +242,19 @@
 					loading.style.display = "none";
 					json = JSON.parse(xhr.responseText);
 
+					Alert.innerHTML = (json.length ? json.length : 0) + " User(s) found.";
+					Alert.id = "warning";
+					Alert.style.display = "block";
+
 					if (json.message){
 						response.innerHTML = "<tr><td colspan='2'>"+ json.message +"</td></tr>";
 					} else {
 
 						for (i in json){
 							tr = document.createElement('tr');
-							tds = "</td><td>"+ json[i].name +"</td><td>"+ json[i].password +"</td><td><ul><li><a href='/delete' data-id='"+ json[i].id +"' class='delete'>Excluir</a></li><li><a href='#!update' data-id='"+ json[i].id +"' class='update'>Editar</a></li></td>";
+							tds = "<td>"+ json[i].id +"</td><td>"+ json[i].name +"</td><td>"+ json[i].password +"</td><td><ul><li><a href='/delete' data-id='"+ json[i].id +"' class='delete'>Excluir</a></li><li><a href='#!update' data-id='"+ json[i].id +"' class='update'>Editar</a></li></td>";
 							tr.innerHTML = tds;
+							tr.id = "user_"+ json[i].id;
 							response.appendChild(tr)
 						}
 
@@ -204,23 +263,9 @@
 						[].forEach.call(deletes, function (del){
 							del.addEventListener('click', function (evt){
 								evt.preventDefault();
-
-								var xhr = new XMLHttpRequest();
-								xhr.open("POST", '/delete', false);
-								xhr.send(JSON.stringify({id :this.dataset.id}));
-
-								var json = JSON.parse(xhr.responseText);
-
-								if (xhr.status != 420){
-									this.parentElement.parentElement.parentElement.parentElement.remove();
-									loading.style.display = "none";
-								}
-								Alert.innerHTML = "<li>"+ json.message + "</li>";
-								Alert.id = "info";
-								Alert.style.display = "block";
+								User.destroy.bind(this)(this.dataset.id);
 							})
 						})
-
 
 						updates = document.querySelectorAll('.update');
 
@@ -243,9 +288,13 @@
 							})
 						})
 					}
-
 				}
+				return JSON.stringify(xhr.resultText);
+			}
 
+			searchForm.addEventListener('submit', function (evt){
+				evt.preventDefault();
+				User.search(evt.target[0].value);
 			})
 		</script>
 
@@ -254,17 +303,21 @@
 
 			create.addEventListener('submit', function (evt){
 				evt.preventDefault();
-
-				var xhr = new XMLHttpRequest();
 				var name = evt.target[0].value;
 				var password = evt.target[1].value;
 
-				user = {
+				User.create(name, password);
+			})
+
+			User.create = function create(name, password){
+				var xhr = new XMLHttpRequest();
+
+				var user = {
 					name: name,
 					password: password
 				}
 
-				xhr.open("POST", this.action, false);
+				xhr.open("POST", "/new", false);
 				xhr.send(JSON.stringify(user));
 				loading.style.display = "block";
 
@@ -281,11 +334,39 @@
 					Alert.id = "error"
 					Alert.style.display = "block";
 				} else {
-					alert(json.message);
-					window.location = "/";
-				}
+					Alert.id = "info";
+					Alert.style.display = "block";
+					Alert.innerHTML = json.message;
+					loading.style.display = "none";
 
-			})
+					tr = document.createElement('tr');
+					td = "<td>"+ json.data.id +"</td><td>"+ json.data.name +"</td><td>"+ json.data.password +"</td><td><ul><li><a href='/delete' data-id='"+ json.data.id +"' class='delete'>Excluir</a></li><li><a href='#!update' data-id='"+ json.data.id +"' class='update'>Editar</a></li></td>";
+					tr.innerHTML = td;
+					tr.id = "user_"+ json.data.id;
+					response.appendChild(tr);
+				}
+			}
+
+			User.destroy = function destroy (id){
+				var xhr = new XMLHttpRequest();
+				xhr.open("POST", '/delete', false);
+				xhr.send(JSON.stringify({id :id}));
+
+				var json = JSON.parse(xhr.responseText);
+
+				if (xhr.status != 420){
+					if (this.parentElement)
+						this.parentElement.parentElement.parentElement.parentElement.remove();
+					else {
+						var del = document.querySelector("#user_"+ id)
+						if (del) del.remove();
+					}
+					loading.style.display = "none";
+				}
+				Alert.innerHTML = "<li>"+ json.message + "</li>";
+				Alert.id = "info";
+				Alert.style.display = "block";
+			}
 		</script>
 	</body>
 </html>

@@ -86,17 +86,21 @@ http.createServer(
     		request.on("end",
           function ()
           {
-      			user = User.create(JSON.parse(user));
+      			var _user = User.create(JSON.parse(user));
 
-      			if (user.errors.size > 0)
+      			if (_user.errors.size > 0)
             {
       				response.writeHead(420)
-      				response.write(JSON.stringify(user.errors.full_messages));
-      				user.errors.clear;
+      				response.write(JSON.stringify(_user.errors.full_messages));
+      				_user.errors.clear;
       			}
             else
             {
-      				response.write(JSON.stringify({message: "User create with success!"}));
+              // _user.on('before_create', function(data){
+              //   response.write(JSON.stringify({message: "User create with success!", data: data.to_object()}));
+              //   response.end();
+              // })
+               response.write(JSON.stringify({message: "User create with success!", data: _user.to_object()}));
       			}
       			response.end();
       		}
