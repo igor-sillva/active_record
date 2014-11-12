@@ -1,6 +1,12 @@
 # Changes #
 
-## 0.1.1  / 2014-10-23 ##
+## 0.1.2 / 2014-11-11
+
+	- New validations methods
+	- Fixed more bugs
+	- Created ActiveSupport methods
+
+## 0.1.1 / 2014-10-23 ##
 
 	- Run funny
 

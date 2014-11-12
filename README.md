@@ -7,7 +7,7 @@ Compatible with: (mysql, postgresql, sqlite3)
 
 ## VERSION
 
-	0.1.1
+	0.1.2
 
 ## Synopsis
 
@@ -16,7 +16,7 @@ Configure Connection:
 ```js
 	var ActiveRecord = require('active_record');
 
-	ActiveRecord.configure_connection({
+	ActiveRecord.Base.configure_connection({
 		driver: 'mysql',
 		user: 'root',
 		password: '',
@@ -29,7 +29,7 @@ Configure Connection:
 
 Establish the connection
 ```js
-	ActiveRecord.establish_connection()
+	ActiveRecord.Base.establish_connection()
 ```
 
 Configure using a Object or a JSON file.
@@ -105,6 +105,7 @@ Create a model:
 		*/
 		this.validate_uniqueness_of('name');
 		this.validate_presence_of('name', {on: "create"});
+		// this.validates('name', 'presence', {on: 'create'})
 		this.validate_presence_of('password');
 		this.validate_inclusion_of('name', {in: ["Irmao Sola"]})
 		this.validate_exclusion_of('name', {in: ["root", "admin"]})
@@ -125,6 +126,7 @@ Create a model:
 		*	-> after_update
 		*	-> after_destroy and delete
 		*/
+		// this.after_destroy(function (){...})
 		this.on('after_destroy', function show_message(user){
 		 	console.log("User #%s destroyed.", user);
 		})
