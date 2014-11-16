@@ -12,6 +12,7 @@ Base.extend_to(User);
 *	-> Singular name
 */
 function User (){
+	Base.initialize_instance_variables.call(this);
 	/* Instance Methods:
 	*	-> attributes
 	*	-> save
@@ -25,16 +26,16 @@ function User (){
 	*	user.save()
 	*	user.destroy() # RecordNotFound.
 	*/
-	this.attributes(arguments[0]);
-	/* Configure the Validations
-	*	-> validate_presence_of
-	*	-> validate_uniqueness_of * FUCK THE ASYNCRONOUS *
-	*	-> validate_length_of
-	*	-> validate_numericality_of
-	*	-> validate_inclusion_of
-	*	-> validate_exclusion_of
-	*	-> validate_format_of
-	*/
+	this.attr_accessible(arguments[0]);
+	// /* Configure the Validations
+	// *	-> validate_presence_of
+	// *	-> validate_uniqueness_of * FUCK THE ASYNCRONOUS *
+	// *	-> validate_length_of
+	// *	-> validate_numericality_of
+	// *	-> validate_inclusion_of
+	// *	-> validate_exclusion_of
+	// *	-> validate_format_of
+	// */
 	// this.validate_uniqueness_of('name');
 	this.validates('name', {
 		presence: {
@@ -46,30 +47,30 @@ function User (){
 			too_short: "minimum is %{count} bitch!"
 		}
 	})
-	// this.validate_presence_of('name', {on: "create"});
+	// // this.validate_presence_of('name', {on: "create"});
 	this.validate_presence_of('password');
-	// this.validate_inclusion_of('name', {in: ["Akrata"]})
-	// this.validate_exclusion_of('name', {in: ["root", "admin"]})
-	// this.validate_length_of('name', {
-	// 	minimum: 6,
-	// 	maximum: 50
-	// });
+	// // this.validate_inclusion_of('name', {in: ["Akrata"]})
+	// // this.validate_exclusion_of('name', {in: ["root", "admin"]})
+	// // this.validate_length_of('name', {
+	// // 	minimum: 6,
+	// // 	maximum: 50
+	// // });
 	this.validate_length_of('password', {minimum: 5});
-	// this.validate_format_of('name', {'with': /[a-zA-Z]/g, message: "only letters"});
-	// this.validate_numericality_of('password', {even: true});
+	// // this.validate_format_of('name', {'with': /[a-zA-Z]/g, message: "only letters"});
+	// // this.validate_numericality_of('password', {even: true});
 	this.has_secure_password(); // Call this function after all validations
-	/* Configure the Callbacks
-	*	-> before_create
-	*	-> before_update
-	*	-> before_destroy and delete
-	*   =================
-	*	-> after_create
-	*	-> after_update
-	*	-> after_destroy and delete
-	*/
-	this.after_destroy(function _show_message(data){
-		console.log("User #%s destroyed.", data.object.id);
-	})
+	// /* Configure the Callbacks
+	// *	-> before_create
+	// *	-> before_update
+	// *	-> before_destroy and delete
+	// *   =================
+	// *	-> after_create
+	// *	-> after_update
+	// *	-> after_destroy and delete
+	// */
+	// this.after_destroy(function _show_message(data){
+	// 	console.log("User #%s destroyed.", data.object.id);
+	// })
 }
 /*	Class Methods:
 *		Actions: 					*	Calculations:

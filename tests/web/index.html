@@ -303,10 +303,13 @@
 
 			create.addEventListener('submit', function (evt){
 				evt.preventDefault();
-				var name = evt.target[0].value;
-				var password = evt.target[1].value;
+				var name = evt.target[0];
+				var password = evt.target[1];
 
-				User.create(name, password);
+				if (User.create(name.value, password.value)){
+					name.innerHTML = "";
+					password.innerHTML = "";
+				};
 			})
 
 			User.create = function create(name, password){
@@ -333,6 +336,7 @@
 					}
 					Alert.id = "error"
 					Alert.style.display = "block";
+					return false;
 				} else {
 					Alert.id = "info";
 					Alert.style.display = "block";
@@ -340,10 +344,11 @@
 					loading.style.display = "none";
 
 					tr = document.createElement('tr');
-					td = "<td>"+ json.data.id +"</td><td>"+ json.data.name +"</td><td>"+ json.data.password +"</td><td><ul><li><a href='/delete' data-id='"+ json.data.id +"' class='delete'>Excluir</a></li><li><a href='#!update' data-id='"+ json.data.id +"' class='update'>Editar</a></li></td>";
+					td = "<td>"+ json.data.insertId +"</td><td>"+ json.data.object.name +"</td><td>"+ json.data.object.password +"</td><td><ul><li><a href='#!delete' onclick='User.destroy("+ json.data.insertId +")'>Excluir</a></li><li><a href='#!update' data-id='"+ json.data.object.id +"' class='update'>Editar</a></li></td>";
 					tr.innerHTML = td;
 					tr.id = "user_"+ json.data.id;
 					response.appendChild(tr);
+					return true;
 				}
 			}
 

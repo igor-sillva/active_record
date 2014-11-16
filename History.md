@@ -1,5 +1,11 @@
 # Changes #
 
+## 0.1.3 / 2014-11-16
+
+	- Add the method Base.initialize_intance_variables // Solved the multiple inheritance bugs
+	- Change name of method Instance.attributes -> Instance.attr_accessible
+	- Change name of method Model.toString -> Model.to_s
+
 ## 0.1.2 / 2014-11-11
 
 	- New validations methods

@@ -43,25 +43,18 @@ var Phone = require('./phones.js');
 */
 // var phone = Phone.create({number: '6523123131', user_id: 1002});
 
-User.find('last', function (user){
-	var user = user[0];
-	if (user){
-		phone = user.phones(function (phones){
-			// if (phones[0]) phones[0].update_attributes({number: '6612312312'});
-			// if (phones.length==10) user.destroy();
-			// console.log(phones)
-		})
-		// .create({
-		// 	number: '6599999999'
-		// })
-		// user.update_attributes({password: 'Aqdwsda'});
-		// setTimeout(function (){
-			// User.destroy(user.get('id'))
-		// }, 1000)
-		// console.log(user)
-	}
-})
-// User.join('phones')
+var user = new User();
+user.set('name', 'Foo');
+user.set('password', '12345');
+user.save() // error!
+console.log(user.errors.full_messages);
+
+// clear the errors
+user.errors.clear()
+user.set('name', 'Akrata')
+user.save()
+console.log(user.errors.full_messages);
+
 /*
 *	Close connection with Database
 */

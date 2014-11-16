@@ -13,7 +13,6 @@ var User = require('../user.js');
 http.createServer(
   function (request, response)
   {
-
     var params = url.parse(request.url, true)
     var index = "";
 
@@ -21,7 +20,7 @@ http.createServer(
     {
 
       console.time('Index Action');
-    	index = fs.readFileSync('../web/index.html');
+    	index = fs.readFileSync('./index.html');
     	response.writeHead(200, {"Content-Type": "text/html"});
     	response.end(index);
       console.timeEnd('Index Action');
@@ -86,23 +85,16 @@ http.createServer(
     		request.on("end",
           function ()
           {
-      			var _user = User.create(JSON.parse(user));
-
-      			if (_user.errors.size > 0)
+      			var _user = User.create(JSON.parse(user), function (data){
+              response.write(JSON.stringify({message: "User create with success!", data: data}));
+              response.end();
+            });
+            if (_user.errors.size > 0)
             {
-      				response.writeHead(420)
-      				response.write(JSON.stringify(_user.errors.full_messages));
-      				_user.errors.clear;
-      			}
-            else
-            {
-              // _user.on('before_create', function(data){
-              //   response.write(JSON.stringify({message: "User create with success!", data: data.to_object()}));
-              //   response.end();
-              // })
-               response.write(JSON.stringify({message: "User create with success!", data: _user.to_object()}));
-      			}
-      			response.end();
+              response.writeHead(420)
+              response.write(JSON.stringify(_user.errors.full_messages));
+              response.end();
+            }
       		}
         )
 
@@ -154,7 +146,6 @@ http.createServer(
             });
           }
         )
-        console.timeEnd('Delete Action')
 
       }
       else
@@ -203,7 +194,6 @@ http.createServer(
     		  	});
     	  	}
         )
-        console.timeEnd('Delete Action')
 
     	}
       else
@@ -213,7 +203,7 @@ http.createServer(
       		response.end();
 
       }
-
+      console.timeEnd('Delete Action')
     }
     else
     {
