@@ -1,112 +1,53 @@
 # ActiveRecord Nodejs
 
-Simplify yours queries, transactions, relations, etc.
-Compatible with: (mysql, postgresql, sqlite3)
+Rails ActiveRecord inspired for Nodejs.
 
 [![Build Status](https://travis-ci.org/3kg4kR/active_record.svg?branch=master)](https://travis-ci.org/3kg4kR/active_record)
 
 ## VERSION
 
-	0.1.3
+    0.1.4
 
-## Synopsis
+## Instalation
+```bash
+npm install active_record
+```
 
-Configure Connection:
-
+## Setup
+### Configure Connection:
 ```js
 var ActiveRecord = require('active_record');
 
 ActiveRecord.Base.configure_connection({
 	driver: 'mysql',
-	user: 'root',
-	password: '',
-	port: 3306,
-	hostname: 'localhost',
-	database: 'chat',
-	pool: true
-})
+	// ...
+});
 ```
-
-Establish the connection
+`or`
 ```js
-ActiveRecord.Base.establish_connection()
+ActiveRecord.Base.configure_connection('path/to/database.json');
 ```
 
-Configure using a Object or a JSON file.
+### Establish the connection:
 
-```json
-/* database.json */
-{
-  	"dev": {
-    	"driver": "mysql",
-	    "hostname": "localhost",
-	    "port": "3306",
-		"user": "root",
-	    "password": "",
-	    "database": "chat"
-  	},
-
-  	"test": {
-	    "driver": "sqlite3",
-	    "filename": "./database"
-  	},
-
-  	"prod": {
-	    "driver": "pg",
-	    "user": "test",
-	    "password": "test",
-	    "host": "localhost",
-	    "database": "mydb"
-  	}
-}
+```js
+ActiveRecord.Base.establish_connection();
 ```
 
 ## Usage
 
-Create a model:
-
+### Model:
 ``` js
-// user.js
-/*
-*	Require
-*	-> ActiveRecord.Base # require('active_record').Base
-*/
 var ActiveRecord = require('active_record');
 /* Exports the module */
 module.exports = User
-/* Extends the module to new ActiveRecord.Base */
-ActiveRecord.Base.extend_to(User)
-/* Create the Class
-*	Obs: -> Singular name
-*/
+/* Extends the module to ActiveRecord.Base */
+ActiveRecord.Base.extend(User, ActiveRecord.Base)
+/* Create the Class */
 function User (){
-	// Initialize the methods!!!
-	Base.initialize_instance_variables.call(this); // Don't Forget!!!
-	/* Instance Methods:
-	*	-> attributes
-	*	-> save
-	*	-> update_attributes
-	*	-> destroy
-	*	-> Validations
-	*	-> Callbacks
-	*/
-	/* var user = new User({name: 'foo', password: 'bar'})
-	*	console.log(user.name) # foo
-	*	user.save()
-	*	user.destroy() # RecordNotFound.
-	*/
-	this.attr_attributes(arguments[0]);
-	/* Configure the Validations
-	*	-> validate_presence_of
-	*	-> validate_uniqueness_of * FUCK THE ASYNCRONOUS *
-	*	-> validate_length_of
-	*	-> validate_numericality_of
-	*	-> validate_inclusion_of
-	*	-> validate_exclusion_of
-	*	-> validate_format_of
-	*	-> validates(item, validations)
-	*	-> validates_with
-	*/
+	/* Initialize the instance variables */
+	this.initialize(arguments[0]);
+	/** Validations */
 	this.validates('name', {
 		presence: true,
 		length: { minimum: 6, maximum: 25 },
@@ -117,105 +58,377 @@ function User (){
 	this.validate_presence_of('password');
 	this.validate_length_of('password', {minimum: 5});
 	this.validate_numericality_of('password');
+	this.has_secure_password();
 
-	this.has_secure_password(); // Call this function after all validations
-
-	/* Configure the Callbacks
-	*	-> before_create
-	*	-> before_update
-	*	-> before_destroy and delete
-	*   =================
-	*	-> after_create
-	*	-> after_update
-	*	-> after_destroy and delete
-	*/
+	/* Callbacks */
 	this.after_destroy(function show_message(user){
 	 	console.log("User #%s destroyed.", user);
-	})
+	});
+
+	this.before_destroy(function is_admin (){
+		if (this.get('role')==='admin'){
+			this.errors.add('name', 'is reserved');
+			return true;
+		}
+		return false;
+	});
 }
-/*	Class Methods:
-*		Actions: 					*	Calculations:
-*			-> create 				*		-> count
-*			-> update 				*		-> average - alias avg
-*			-> update_all 			*		-> minimum - alias min
-*			-> destroy 				*		-> maximum - alias max
-*			-> destroy_all 			*		-> sum
-*
-*		Finders:
-*			-> find
-*			-> first
-*			-> last
-*			-> all
-*			-> where
-*			-> exists
-*			-> find_by_sql
-*			-> join
-*/
-/* Configure the model
-*	-> table_name_prefix (default = '')
-*	-> table_name  (defalt = Class.name.underscore().pluralize())
-*	-> primary_key (default = 'id')
-*	-> foreign_key (default = null)
-*/
+
+/* Configure the model */
 User.table_name = 'users';
-/* Configure the Associations
-*	-> belongs_to
-*	-> has_one
-*	-> has_many
-*	-> has_many_to_many
-*/
+User.fields('name', 'password'); // Create dynamics finders: User.find_by_name, etc.
+/* Configure the Associations */
 User.has_many('phones');
 ```
 
-Example:
+###Usage:
 ``` js
+/* Create, Update, Destroy */
 User.create({ name: 'Foo', password: 'Bar' }, function(data){ ... })
-
+User.update(2, {name: 'Bar', password: 'Foo'}, function(data){ ... })
 User.destroy(1, function(data){ ... })
 
-User.update(2, {name: 'Bar', password: 'Foo'}, function(data){ ... })
+/* Finders */
+User.find([1,2,3], function(error, data){ ... })
+User.where("name = 'foo'", function(error, data){ ... })
 
-User.find([1,2,3], function(data){ ... })
+/* Calculations */
+User.count('*', function (error, data){ ... })
 
-User.where("name = 'foo'", function(data){ ... })
-
-// HasMany Example
-User.find(1, function (user){
-
-	user[0].phones(function (phone, Phone){
-		if (phone.length == 1)
-			phone[0].update_attributes({foo: `bar`})
-		Phone.all(function (data){
-			console.log(data);
-		})
+/** Associations
+* User.has_many('phones') */
+User.find(1, function (error, user){
+	user[0]
+	.phones(function (error, phone, Phone){
+		/* Phone.belongs_to('user') */
+		phone[0].user(console.log)
 	})
-	.create({
-		number: "9999-9999"
-	})
+	.create({ // @return Phone
+		number: "(66)9999-9999"
+	});
 
 })
+
+/* Callbacks */
+User.before_find(function (query, values, options){ ... })
 ```
 
-More Examples:
+# API
+
+## ActiveRecord
+
+`ActiveRecord` Global config options
+
+* `logger`: `Not implemented`
+* `primary_key_prefix_type`:
+* `table_name_prefix`:
+* `table_name_suffix`:
+* `pluralize_table_names`:
+* `default_timezone`:
+* `record_timestamps`:
+* `cache_query`:
+* `max_number_of_listeners`:
+
+`Example`:
+```js
+var ActiveRecord = require('active_record');
+ActiveRecord.configure('primary_key_prefix_type', 'table_name');
+```
+`or`
+```js
+ActiveRecord.configure({ primary_key_prefix_type: 'table_name', ... });
+```
+
+## ActiveSupport
+* `Inflector`:
+	`@methods`: `inflections`
+		* `plural`, `singular`, `uncountable`
+Example:
+```js
+var ActiveSupport = require('active_record').ActiveSupport;
+ActiveSupport.Inflector.inflections('pt-BR', function (inflector){
+	inflector.plural(/(z|r)$/i, '$1es');
+});
+module.exports = ActiveSupport;
+```
+
+## Base
+`@alias ActiveRecord.Base`
+
+`@methods`:
+* `Base.configure_connection` alias of `Base.connection.config`
+* `Base.estabilish_connection` alias of `Base.connection.connect`
+* `Base.close_connection` alias of `Base.connection.disconnect`
+* `Base.extend`
+
+### configure_connection(config)
+```js
+Base.configure_connection('path/to/database.json')
+```
+
+### estabilish_connection()
+```js
+Base.estabilish_connection()
+```
+
+### close_connection()
+```js
+Base.close_connection()
+```
+
+### extend(destination, [source])
+```js
+module.exports = User
+Base.extend(User, Base)
+function User(){
+    // ...
+}
+```
+
+## Class Methods
+## Finders
+`@methods`: `find`, `first`, `last`, `all`, `exists`, `where`, `join`, `find_by_sql`, `find_by_id`, `fields`.
+
+### find(id, [conditions], [callback])
+`@conditions` operators: `is`, `is_not`, `like`, `not_like`, `gt`, `gte`, `lt`, `lte`,
+`between`, `exists`, `not_exists`, `some`, `all`, `in`, `not_in`.
+
+Example:
+```bash
+{
+	name_like: 'foo',
+	password_is_not: null
+	roleId: 1 // If the field is with underscore (role_id), write in camelcase
+	createdAt_between: [new Date(), new Date()]
+}
+```
 
 ```js
-var user = new User();
-user.set('name', 'Foo');
-user.set('password', '12345');
-user.save() // error!
-console.log(user.errors.full_messages);
+User.find(1, function (error, record){ ... });
+//> SELECT * FROM users WHERE `id` = 1
 
-// clear the errors
-user.errors.clear
-user.set('name', 'Akrata')
-user.save()
-console.log(user.errors.full_messages);
+User.find([1,2,3,4], function (error, record){ ... });
+//> SELECT * FROM users WHERE `id` IN (1,2,3,4)
+
+User.find({
+	select: ["name", "password"],
+	conditions: ["name LIKE ?", "%foo%"],
+	limit: 1
+});
+//> SELECT `name`, `password` FROM users WHERE `name` LIKE '%foo%' LIMIT 1
+
+User.find('first');
+//> SELECT * FROM users LIMIT 1 ORDER BY `id` ASC
+
+User.find('last', { name_is_not: 'foo' });
+//> SELECT * FROM users WHERE `name` IS NOT 'foo' LIMIT 1 ORDER BY `id` DESC
+
+User.find('all', { password: 'bar' });
+//> SELECT * FROM users WHERE `password` = 'bar'
+
+User.find('all', { name_like: "%foo%" }, function (error, records){
+	if (error) throw error;
+
+	records.map(function (record){
+		return record.to_json();
+	})
+});
+//> SELECT * FROM users WHERE `name` LIKE '%foo%'
 ```
 
-## API
+### first([conditions], [callback])
+`@alias find('first', [conditions], [callback])`
+```js
+User.first({ id_gt: 10 });
+//> SELECT * FROM users WHERE `id` > 10
+```
 
-See the [API documentation](https://github.com/3kg4kR/active_record/wiki) in the wiki.
+### last([conditions], [callback])
+`@alias find('last', [conditions], [callback])`
+```js
+User.last({ name_like: '%foo%' });
+//> SELECT * FROM users WHERE `name` LIKE '%foo%';
+```
+
+### all([conditions], [callback])
+`@alias find('all', [conditions], [callback])`
+```js
+User.all(function (error, records){ ... });
+//> SELECT * FROM users
+```
+
+### exists([conditions], [callback])
+```js
+User.exists(1);
+//> SELECT 1 FROM users WHERE `id` = 1
+
+User.exists({ name: 'foo' });
+//> SELECT 1 FROM users WHERE `name` = 'foo'
+```
+
+### join(table_name, [conditions], [callback])
+```js
+User.find({
+	include : {
+		join: 'phones',
+		direction: "LEFT",
+		on: "phones.user_id != users.id"
+	}
+});
+//> SELECT * FROM users LEFT JOIN phones ON phones.user_id != users.id
+
+User.find({ include: 'phones' });
+//> SELECT * FROM users INNER JOIN phones ON `phones`.`id` = `user`.`id`
+
+User.join('phones');
+//> SELECT * FROM users INNER JOIN phones ON `phones`.`user_id` = `user`.`id`
+
+User.join('phones', { name: 'foo' })
+//> SELECT * FROM users INNER JOIN phones ON phones.user_id = users.id WHERE `name` = 'foo'
+```
+
+### find_by_sql(sql, [values], [callback])
+```js
+User.find_by_sql("SELECT DISTINCT(*) FROM users "
+                +"INNER JOIN foo ON `foo`.`user_id` = `users`.`id` "
+                +"WHERE `users`.`name`LIKE ?", ['%bar%'], function (error, records){ ... })
+```
+
+### find_by_id(id, [callback])
+```js
+User.find_by_id(1)
+//> SELECT * FROM users WHERE `id` = 1
+```
+
+### field(*fields)
+Create dynamic finders
+```js
+User.fields('name', 'password', 'created_at', 'updated_at');
+
+User.find_by_name('foo');
+//> SELECT * FROM users WHERE `name` = 'foo'
+
+User.find_by_created_at(new Date().toString());
+//> SELECT * FROM users WHERE created_at = 'Thu Dec 11 2014 22:32:45 GMT-0300 (AMST)'
+```
+
+## Calculations
+`@methods`: `count`, `average` alias `avg`, `minimum` alias `min`, `maximum` alias `max`, `sum`.
+
+### count([column_name], [conditions], [callback])
+```js
+User.count('*');
+//> SELECT COUNT(*) FROM users
+
+User.count('*', { name_like: '%foo%' }, function (error, response){ ... });
+//> SELECT COUNT(*) FROM users  WHERE `name` LIKE '%foo%'
+```
+
+### average([column_name], [conditions], [callback])
+`@alias avg`
+```js
+User.average('id');
+//> SELECT AVG(id) FROM users
+
+User.avg('id', { name_like: '%foo%' }, function (error, response){ ... });
+//> SELECT AVG(id) FROM users  WHERE `name` LIKE '%foo%'
+```
+
+### minimum([column_name], [conditions], [callback])
+`@alias min`
+```js
+User.minimum('id');
+//> SELECT MIN(id) FROM users
+
+User.min('id', { name_like: '%foo%' }, function (error, response){ ... });
+//> SELECT MIN(id) FROM users  WHERE `name` LIKE '%foo%'
+```
+
+### maximum([column_name], [conditions], [callback])
+`@alias max`
+```js
+User.maximum('id');
+//> SELECT MAX(id) FROM users
+
+User.max('id', { name_like: '%foo%' }, function (error, response){ ... });
+//> SELECT MAX(id) FROM users  WHERE `name` LIKE '%foo%'
+```
+
+### sum([column_name], [conditions], [callback]);
+```js
+User.sum('id');
+//> SELECT SUM(id) FROM users
+
+User.sum('id', { name_like: '%foo%' }, function (error, response){ ... });
+//> SELECT SUM(id) FROM users  WHERE `name` LIKE '%foo%'
+```
+
+## Actions
+`@methods`: `create`, `update`, `update_all`, `destroy`, `destroy_all`, `delete`, `delete_all`.
+
+### create(params, [callback])
+```js
+User.create({
+	name: 'Akrata',
+	password: 'akrata',
+	password_confirmation: 'akrata'
+});
+//> INSERT INTO users SET `name` = 'Akrata', `password` = '79a1a1b8ee1b831a27db58089cbf298dc38f3eec', `updated_at` = '2014-12-13 11:07:11', `created_at` = '2014-12-13 11:07:11'
+```
+
+### update(id, params, [callback])
+```js
+User.update(1, {
+	name: 'Fooo',
+	password: '@kr@t@',
+	password_confirmation: '@kr@t@'
+});
+//> UPDATE users SET `name` = 'Fooo', `password` = '0f962118caa0122e7b7c9b1266cecf77918c9f65', `updated_at` = '2014-12-13 11:19:24' WHERE `id` = 1
+```
+
+### update_all(conditions, params, [callback])
+```js
+
+```
+
+### destroy(id, [callback])
+```js
+
+```
+
+### destroy_all([conditions], [callback])
+```js
+
+```
+
+### delete(id, [callback])
+```js
+
+```
+
+### delete_all([conditions], [callback])
+```js
+
+```
+
+## Callbacks
+`@methods`: `before_create`, `before_update`, `before_destroy`, `before_find`.
+
+
+## Instance Methods
+### Attributes Methods
+
+`@methods`: `initialize`, `set`, `get`, `to_object`, `to_json`, `keys`, `values`, `attributes`, `is_valid`,
+`changed`, `toString`, `save`, `update_attributes`, `destroy`, `errors`: { `add`, `remove`, `clear`, `set`, `get`, `any`, `size`, `full_messages` }.
+
+
+### Validations
+`@methods`: `validates`, `validates_with`, `validate_presence_of`, `validate_uniqueness_of`, `validate_numericality_of`, `validate_length_of`, `validate_format_of`, `validate_exclusion_of`, `validate_inclusion_of`, `validate_confirmation_of`, `has_secure_password`: { `authenticate` }
+
+
+
+### Callbacks
+`@methods`: `before_create`, `before_update`, `before_destroy`.
 
 ## License
-
 GPLv3

@@ -1,0 +1,486 @@
+<!DOCYTIPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+	    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+	    <meta name="viewport" content="width=device-width, initial-scale=1">
+		<!-- Latest compiled and minified CSS -->
+		<link rel="stylesheet" href="dist/css/bootstrap.min.css">
+		<title>Active Record</title>
+		<!--[if lt IE 9]>
+	      	<script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+	      	<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+	    <![endif]-->
+		<style type="text/css">
+			body {
+				width: 900px;
+				padding: 50px;
+				margin: 0 auto;
+				font-family: monospace;
+			}
+
+			table ul li {
+				list-style: none;
+				float: left;
+				padding-left: 5px;
+			}
+
+			#loading {
+				z-index: 9999;
+				position: fixed;
+				left: 48%;
+			}
+
+			.terminal {
+				position: fixed;
+				z-index: 9999;
+				width: 99%;
+				left: 5px;
+				top: -206px;
+				border: 1px solid #000;
+				background: rgba(0,0,0,0.5);
+				transition: top 0.1s linear 0.1s;
+				overflow: hidden;
+				font-family: ProggyCleanTT;
+			}
+			/*.terminal .terminal-header {
+				text-align: center;
+				font-weight: bold;
+				padding-top: 5px;
+				color: #CCC;
+			}*/
+			.terminal .terminal-body {
+				width: 100%;
+				height: 180px;
+				background: rgba(0,0,0,0.5);
+				color: #CCC;
+				padding: 5px 0 0 5px;
+				overflow: hidden;
+				overflow-y: visible;
+			}
+
+			.terminal-body ul {
+
+				list-style: none;
+				padding-left: 5px;
+			}
+
+			.terminal .terminal-footer input {
+				width: 100%;
+				background-color: rgba(0,0,0,0.5);
+				border: 1px solid rgba(0,0,0,0.5);
+				color: #CCC;
+			}
+
+			.terminal .terminal-footer form {
+				margin: 0;
+			}
+
+			.show-terminal {
+				position: fixed;
+				z-index: 10000;
+				width: 100px;
+				left: 50%;
+				top: 0px;
+				padding: 5px;
+				margin-left: -5%;
+				border-left: 1px solid #000;
+				border-right: 1px solid #000;
+				border-top: 1px solid #000;
+				border-bottom: 1px solid rgba(0,0,0,0.5);
+				background: rgba(0,0,0,0.5);
+				text-align: center;
+				transition: top 0.1s linear 0.1s;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div class="show-terminal" id="off">$_ ~:</div>
+		<div class="terminal">
+			<!-- <div class="terminal-header">/home/3kg4kR/active_record/tests</div> -->
+			<div class="terminal-body">
+				<ul class="code"></ul>
+			</div>
+			<div class="terminal-footer">
+				<form class="form-inline" action="/" method="POST" name="terminal-form">
+					<input type="text" />
+					<input type="submit" value="Search" style="display:none">
+				</form>
+			</div>
+		</div>
+		<div id="loading" class="label label-info">Loading...</div>
+
+		<div class="page-header">
+			<h1><a href="http://www.github.com/3kg4kR/active_record" target="_blank">Active Record <small>Test</small></a></h1>
+			<h6>By 3kg4kR (igor_sillva@hotmail.com)</h6>
+		</div>
+		<button class="btn btn-primary" type="button">Model User <span class="badge">0</span></button>
+		<div>&nbsp;</div>
+		<section>
+			<form class="form-inline" action="/search" method="GET" name="search">
+				<input type="search" placeholder="Search" name="q">
+				<button class="btn" type="submit">
+					<i class="glyphicon glyphicon-search"></i>
+				</button>
+			</form>
+		</section>
+		<hr />
+		<section>
+			<form action="/new" method="POST" name="create">
+				<label>Name:</label>
+				<input type="text" placeholder="Name" name="name" />
+				<label>Password:</label>
+				<input type="password" placeholder="Password" name="password" />
+				<button type="submit" class="btn btn-success">
+					Create
+				</button>
+			</form>
+		</section>
+		<div class="alert"></div>
+		<hr />
+		<section>
+			<table class="table table-condensed response">
+				<thead>
+					<tr>
+						<th style="width: 50px">#</th>
+						<th>Name</th>
+						<th>Password</th>
+						<th style="width: 150px">Actions</th>
+					</tr>
+				</thead>
+				<tbody class="response-body"></tbody>
+			</table>
+		</section>
+
+		<!-- JUST FOR FUN -->
+		<script type="text/javascript">
+		function User () {};
+
+		if (sessionStorage){
+			var commands = sessionStorage['commands'];
+			if (commands){
+				commands = JSON.parse(commands);
+			} else {
+				sessionStorage['commands'] = '[]';
+			}
+		} else {
+			var commands = [];
+		}
+		</script>
+
+		<script type="text/javascript">
+			var terminal = document.querySelector('.terminal');
+			var terminalBody = terminal.querySelector('.terminal-body');
+			var terminalBodyUl = terminal.querySelector('.terminal-body .code');
+			var terminalForm = terminal.querySelector('form[name="terminal-form"]');
+			var openTerminal = document.querySelector('.show-terminal');
+			var input = terminalForm.querySelector('input[type="text"]');
+			input.value = '';
+
+			var counter = 1;
+			input.addEventListener('keypress', function (evt){
+
+				var value = undefined;
+				if (evt.keyCode == 38){ // Up
+					if (commands.length>0 && counter>0){
+						value = commands[commands.length - counter];
+						counter++;
+					}
+				}
+
+				if (evt.keyCode == 40){ // Down
+					if (commands.length>0 && counter>0){
+						value = commands[(commands.length - counter) + 2];
+						counter--;
+					}
+				}
+
+				if (evt.keyCode==38||evt.keyCode==40){
+					if (value) this.value = value;
+					else this.value = '';
+				}
+
+				if (counter<=0) counter = 1;
+				if (counter>commands.length) counter = commands.length;
+			})
+
+			openTerminal.addEventListener('click', function (evt){
+				if (this.id=="off"){
+					this.style.top = "206px";
+					this.id="on";
+					terminal.style.top = "0px";
+				} else {
+					this.style.top = "0px";
+					this.id="off";
+					terminal.style.top = "-206px";
+				}
+
+				var input = terminalForm.querySelector('input[type="text"]');
+				input.innerText = "";
+				input.focus();
+			})
+
+			terminalForm.addEventListener('submit', function (evt){
+				evt.preventDefault();
+				var input = evt.target[0]
+				var line = document.createElement('li');
+
+				if (input.value !== ""){
+					var exec = null;
+					var resultLine = document.createElement('li');
+
+					line.textContent = "$> ~: "+ input.value;
+					terminalBodyUl.appendChild(line);
+
+					try {
+						exec = eval(input.value);
+						resultLine.style.color = 'white';
+					} catch (Exception){
+						exec = Exception;
+						resultLine.style.color = 'red';
+					}
+
+					resultLine.textContent = exec;
+					terminalBodyUl.appendChild(resultLine);
+
+					terminalBody.scrollTop = 100000;
+
+					if (input.value!=commands[commands.length-1]){
+						commands.push(input.value);
+						sessionStorage['commands'] = JSON.stringify(commands);
+						counter = 1;
+					}
+				}
+
+				input.value = "";
+				input.focus();
+			})
+
+			var clear = function clear (){
+				return terminalBodyUl.innerHTML = "";
+			}
+		</script>
+
+		<script type="text/javascript">
+
+			var loading = document.querySelector('#loading');
+			var searchForm = document.querySelector('form[name="search"]');
+			var Alert = document.querySelector('.alert');
+			var response = document.querySelector('.response-body');
+			var count = document.querySelector('.badge')
+
+			loading.style.display = "none";
+
+			User.search = function search (value){
+				var xhr = new XMLHttpRequest();
+				loading.style.display = "block";
+
+				xhr.open("GET", "/search?q="+value , false);
+				xhr.send();
+
+				if (xhr.status == 200){
+					response.innerHTML = "";
+					loading.style.display = "none";
+					json = JSON.parse(xhr.responseText);
+					count.innerHTML = json.length || 0;
+
+					if (json.message){
+						Alert.innerHTML = json.message;
+						Alert.setAttribute('class', "alert alert-warning");;
+						Alert.style.display = "block";
+					} else {
+						for (i in json){
+							tr = document.createElement('tr');
+							tds = "<td>"+ json[i].id +"</td><td>"+ json[i].name +"</td><td>"+ json[i].password +"</td><td><ul><li><span data-id='"+ json[i].id +"' class='label label-danger delete'>Delete</span></li><li><span data-id='"+ json[i].id +"' class='label label-info update'>Edit</span></li></ul></td>";
+							tr.innerHTML = tds;
+							tr.id = "user_"+ json[i].id;
+							response.appendChild(tr)
+						}
+
+						deletes = document.querySelectorAll('.delete');
+
+						[].forEach.call(deletes, function (del){
+							del.addEventListener('click', function (evt){
+								evt.preventDefault();
+								User.destroy.bind(this)(this.dataset.id);
+							})
+						})
+
+						updates = document.querySelectorAll('.update');
+
+						[].forEach.call(updates, function (uptodate){
+							uptodate.addEventListener('click', function (evt){
+								evt.preventDefault();
+
+								var tr = this.parentElement.parentElement.parentElement.parentElement;
+								var tds = tr.querySelectorAll('td');
+								var name_ = tds[1];
+
+								var name = prompt('Edit name: ', name_.textContent);
+								var password = prompt('Edit password:');
+
+								User.update.call(this, this.dataset.id, name, password);
+							})
+						})
+					}
+				} else {
+					Alert.innerHTML = json.message;
+					Alert.classList.add("alert-danger");
+					Alert.style.display = "block";
+				}
+
+				return JSON.parse(xhr.responseText);
+			}
+
+			searchForm.addEventListener('submit', function (evt){
+				evt.preventDefault();
+				User.search(evt.target[0].value);
+			})
+		</script>
+
+		<script type="text/javascript">
+			var create = document.querySelector('form[name="create"]');
+
+			create.addEventListener('submit', function (evt){
+				evt.preventDefault();
+				var name = evt.target[0];
+				var password = evt.target[1];
+
+				User.create(name.value, password.value);
+
+				name.textContent = "";
+				password.textContent = "";
+			})
+
+			User.create = function create(name, password){
+				var xhr = new XMLHttpRequest();
+
+				var user = {
+					name: name,
+					password: password
+				}
+
+				xhr.open("POST", "/new", false);
+				xhr.send(JSON.stringify(user));
+				loading.style.display = "block";
+
+				json = JSON.parse(xhr.response);
+
+				if (xhr.status == 420){
+					loading.style.display = "none";
+					Alert.innerHTML = "";
+					json = Array.isArray(json) ? json : [json];
+					var ul = document.createElement('ul')
+					for ( i in json){
+						li = document.createElement('li')
+						li.innerHTML = json[i].message ? json[i].message : json[i];
+						ul.appendChild(li);
+					}
+					Alert.appendChild(ul);
+					Alert.setAttribute('class', "alert alert-danger");
+					Alert.style.display = "block";
+					return json.map(function (j){ return j }).join(', ');
+				} else {
+					Alert.setAttribute('class', "alert alert-info");;
+					Alert.style.display = "block";
+					Alert.innerHTML = json.message;
+					loading.style.display = "none";
+
+					tr = document.createElement('tr');
+					console.log(json.data)
+					td = "<td>"+ json.data[0] +"</td><td>"+ json.data[1].name +"</td><td>"+ json.data[1].password +"</td><td><ul><li><span onclick='User.destroy("+ json.data[0] +")' class='label label-danger delete'>Delete</span></li><li><span data-id='"+ json.data[0] +"' class='label label-info update'>Edit</span></li></ul></td>";
+
+					tr.innerHTML = td;
+					tr.id = "user_"+ json.data[0];
+					count.innerHTML = new Number(count.innerHTML) + 1;
+					response.appendChild(tr);
+					return json.message;
+				}
+			}
+
+			User.destroy = function destroy (id){
+				var xhr = new XMLHttpRequest();
+				xhr.open("POST", '/delete', false);
+				xhr.send(JSON.stringify({id :id}));
+
+				var json = JSON.parse(xhr.responseText);
+
+				loading.style.display = "none";
+				if (xhr.status != 420){
+					if (this.parentElement){
+						this.parentElement.parentElement.parentElement.parentElement.remove();
+					}else {
+						var del = document.querySelector("tr#user_"+ id)
+						if (del) del.remove();
+					}
+					var _count = new Number(count.innerHTML)
+					count.innerHTML = _count == 0 ? 0 : _count - 1;
+					Alert.innerHTML = "<li>"+ json.message + "</li>";
+					Alert.setAttribute('class', "alert alert-warning");;
+					Alert.style.display = "block";
+				} else {
+					Alert.innerHTML = json.message;
+					Alert.setAttribute('class', "alert alert-danger");;
+					Alert.style.display = "block";
+				}
+				return json.message;
+			}
+
+			User.update = function update(id, name, password){
+				var attributes = {};
+				if (name) attributes.name = name.toString();
+				if (password) attributes.password = password.toString();
+
+				var xhr = new XMLHttpRequest();
+				xhr.open("POST", '/update', false);
+				xhr.send(JSON.stringify([{id: id}, {attr: attributes} ]));
+
+				var json = JSON.parse(xhr.responseText);
+
+				loading.style.display = "none";
+
+				if (xhr.status != 420){
+					if (this.parentElement){
+						var tr = this.parentElement.parentElement.parentElement.parentElement;
+						var tds = tr.querySelectorAll('td')
+						var name = tds[1]
+						var password = tds[2]
+
+						name.textContent = json.data.name ? json.data.name : name.textContent;
+						password.textContent = json.data.password ? json.data.password : password.textContent;
+					} else {
+						var tr = document.querySelector("tr#user_"+ id);
+						if (tr){
+							var tds = tr.querySelectorAll('td')
+							var name = tds[1]
+							var password = tds[2]
+
+							name.textContent = json.data.name ? json.data.name : name.textContent;
+							password.textContent = json.data.password ? json.data.password : password.textContent;
+						}
+
+					}
+					Alert.innerHTML = "<ul><li>"+ json.message + "</li></ul>";
+					Alert.setAttribute('class', "alert alert-info");;
+					Alert.style.display = "block";
+				} else {
+					Alert.innerHTML = "";
+					json = Array.isArray(json) ? json : [json];
+					json[0].message = Array.isArray(json[0].message) ? json[0].message : [json[0].message];
+					var ul = document.createElement('ul');
+					for (var i=0; i<json[0].message.length; i++){
+						li = document.createElement('li')
+						li.innerHTML = json[0].message[i] ? json[0].message[i] : json[i];
+						ul.appendChild(li);
+					}
+					Alert.appendChild(ul);
+					Alert.setAttribute('class', "alert alert-danger");
+					Alert.style.display = "block";
+					return json.map(function (j){ return j.message }).join(' , ');
+				}
+				return json.message;
+			}
+		</script>
+	</body>
+</html>

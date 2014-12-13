@@ -17,5 +17,6 @@
 	"uniqueness" : "has already been taken",
 	"invalid" : "is invalid",
 	"exclusion" : "is reserved",
-	"inclusion" : "is not included in the list"
+	"inclusion" : "is not included in the list",
+	"confirmation" : "doesn’t match confirmation"
 }
