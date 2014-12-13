@@ -1,5 +1,9 @@
 # Changes #
 
+## 0.1.4 / 2014-12-13
+
+	- I don't remember i do.
+
 ## 0.1.3 / 2014-11-16
 
 	- Add the method Base.initialize_intance_variables // Solved the multiple inheritance bugs
