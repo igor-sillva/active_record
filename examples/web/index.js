@@ -52,17 +52,19 @@ http.createServer(function (request, response){
 			})
 
 			request.on("end", function (){
-				var _user = User.create(JSON.parse(user), function (error, record, data){
+				var _user = User.create(JSON.parse(user), function (error, data, record){
 					if (error) {
 						response.writeHead(420);
 						response.write(JSON.stringify({message: [error.message]}));
 						response.end();
 					}
-					if (record) response.write(JSON.stringify({
-						message: "User create with success!",
-						data: [data.insertId, record.to_object()]
-					}));
-				  response.end();
+					if (record && data) {
+						response.write(JSON.stringify({
+							message: "User create with success!",
+							data: [data.insertId, record.to_object()]
+						}));
+						response.end();
+					}
 				});
 
 				if (_user && _user.errors.size > 0){
