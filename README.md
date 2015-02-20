@@ -20,12 +20,44 @@ var ActiveRecord = require('active_record');
 
 ActiveRecord.Base.configure_connection({
 	driver: 'mysql',
-	// ...
+	hostname: 'localhost',
+	port: 3306,
+	user: 'root',
+	password: '',
+	database: 'active_record'
+	pool: true,
+	'pool config': { min: 1, max: 20 }
 });
 ```
 `or`
 ```js
+ActiveRecord.Base.connection.config({ env: 'test' }); // Set Enviroment; *Default: 'dev'
 ActiveRecord.Base.configure_connection('path/to/database.json');
+
+/* JSON file example: */
+{
+  "dev": {
+    "driver": "mysql",
+    "hostname": "localhost",
+    "port": "3306",
+    "user": "root",
+    "password": "",
+    "database": "chat"
+  },
+
+  "test": {
+    "driver": "sqlite3",
+    "filename": "./database"
+  },
+
+  "prod": {
+    "driver": "pg",
+    "user": "test",
+    "password": "test",
+    "host": "localhost",
+    "database": "mydb"
+  }
+}
 ```
 
 ### Establish the connection:
