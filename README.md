@@ -438,7 +438,7 @@ Find all record before destroy
 User.destroy_all({ id_gt: 10 });
 //> SELECT * FROM users WHERE id > 10
 // if record > 0
-//> DESTROY FROM users WHERE id > 10
+//> DESTROY FROM users WHERE id = @record.id
 ```
 
 ### delete(id, [callback])
