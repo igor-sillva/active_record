@@ -420,27 +420,39 @@ User.update(1, {
 
 ### update_all(conditions, params, [callback])
 ```js
-
+User.update_all({ name: 'foo' }, { name: 'bar' });
 ```
 
-### destroy(id, [callback])
+### destroy(id, [callback]) 
+Find the record before destroy
 ```js
-
+User.destroy(1);
+//> SELECT * FROM users WHERE id = 1
+// if record
+//> DESTROY FROM users WHERE id = 1
 ```
 
 ### destroy_all([conditions], [callback])
+Find all record before destroy
 ```js
-
+User.destroy_all({ id_gt: 10 });
+//> SELECT * FROM users WHERE id > 10
+// if record > 0
+//> DESTROY FROM users WHERE id > 10
 ```
 
 ### delete(id, [callback])
+Like destroy() method, but don't find.
 ```js
-
+User.delete(1);
+//> DELETE FROM users WHERE id = 1
 ```
 
 ### delete_all([conditions], [callback])
+Like destroy_all() method, but don't find.
 ```js
-
+User.delete_all({ id_gt: 10 });
+//> DESTROY FROM users WHERE id > 10
 ```
 
 ## Callbacks
@@ -453,6 +465,32 @@ User.update(1, {
 `@methods`: `initialize`, `set`, `get`, `to_object`, `to_json`, `keys`, `values`, `attributes`, `is_valid`,
 `changed`, `toString`, `save`, `update_attributes`, `destroy`, `errors`: { `add`, `remove`, `clear`, `set`, `get`, `any`, `size`, `full_messages` }.
 
+### initialize(attributes)
+Initialize instance variables
+```js
+var user = new User();
+user.set('name', 'Foo'); // return ERROR
+// initialize variables
+user.initialize();
+user.set('name', 'Foo');
+```
+
+### set(key, value)
+```js
+var user = new User();
+user.initialize();
+user.set('name', 'Foo');
+user.get('name'); // return 'Foo'
+console.log(user.name);
+
+user.set('password', 'bar');
+user.get('password'); // return 'bar'
+
+//** DON'T USE **//
+user.name = 'Foo';
+```
+
+###
 
 ### Validations
 `@methods`: `validates`, `validates_with`, `validate_presence_of`, `validate_uniqueness_of`, `validate_numericality_of`, `validate_length_of`, `validate_format_of`, `validate_exclusion_of`, `validate_inclusion_of`, `validate_confirmation_of`, `has_secure_password`: { `authenticate` }
