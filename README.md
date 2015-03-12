@@ -51,7 +51,7 @@ ActiveRecord.Base.configure_connection('path/to/database.json');
   },
 
   "prod": {
-    "driver": "pg",
+    "driver": "postgres",
     "user": "test",
     "password": "test",
     "host": "localhost",
@@ -423,7 +423,7 @@ User.update(1, {
 User.update_all({ name: 'foo' }, { name: 'bar' });
 ```
 
-### destroy(id, [callback]) 
+### destroy(id, [callback])
 Find the record before destroy
 ```js
 User.destroy(1);
