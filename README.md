@@ -54,7 +54,7 @@ ActiveRecord.Base.configure_connection('path/to/database.json');
     "driver": "postgres",
     "user": "test",
     "password": "test",
-    "host": "localhost",
+    "hostname": "localhost",
     "database": "mydb"
   }
 }
