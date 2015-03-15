@@ -11,27 +11,7 @@ ActiveRecord.Base.configure_connection('./database.json');
 /* Establish the connection */
 ActiveRecord.Base.establish_connection();
 /* CREATE TABLES */
-var drop_tables = false;
-if (drop_tables){
-	var driver = ActiveRecord.Base.connection.get('driver');
-	var auto_increment = driver == 'sqlite3' ? 'AUTOINCREMENT' : driver == 'postgres' ? '' : 'auto_increment';
-	ActiveRecord.Base.connection.conn.query("drop table if exists phones");
-	ActiveRecord.Base.connection.conn.query("drop table if exists users");
-	ActiveRecord.Base.connection.conn.query("create table if not exists users (\
-		id integer primary key "+ auto_increment +", name varchar(50) not null,\
-		password varchar(50) not null, updated_at timestamp not null,\
-		created_at timestamp not null\
-	)");
-	ActiveRecord.Base.connection.conn.query("create table if not exists phones (\
-		id integer primary key "+ auto_increment +", number varchar(11) not null,\
-		user_id integer, updated_at timestamp not null,\
-		created_at timestamp not null, foreign key(user_id) references users(id) on update cascade on delete set null\
-	)");
-	setTimeout(function() {
-		ActiveRecord.Base.close_connection();
-	}, 1000);
-	return false;
-}
+require('./create_table').createTable();
 
 /* Require the modules */
 var User  = require('./user.js');
@@ -39,9 +19,20 @@ var Phone = require('./phone.js');
 var assert = require('assert');
 
 /* TEST */
+User.create({
+	name: 'ooofo',
+	password: 'dsadas'
+})
+
 User.all(function (err, users){
-	console.log(users.length)
+	console.log(users)
+	// User.all()
 });
+User.update(1, {name: 'goo'})
+// User.delete(1)
+// User.destroy(1)
+User.find(1)
+
 /* Close connection with Database */
 setTimeout(function() {
 	ActiveRecord.Base.close_connection();
