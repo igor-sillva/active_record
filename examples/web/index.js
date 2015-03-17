@@ -7,7 +7,13 @@ var querystring = require('querystring');
 
 ActiveRecord.configure('default_models_path', '../');
 
-ActiveRecord.Base.configure_connection('../database.json');
+ActiveRecord.Base.connection.set('env', 'prod');
+ActiveRecord.Base.configure_connection('../database.json')
+// ActiveRecord.Base.configure_connection({
+// 	"driver": "sqlite3",
+// 	"filename": "../active_record_tests.sqlite3"
+// });
+
 ActiveRecord.Base.establish_connection();
 
 http.createServer(function (request, response){
@@ -21,10 +27,12 @@ http.createServer(function (request, response){
 		response.end(index);
 		console.timeEnd('Index Action');
 	} else if (params.pathname=="/search"){
+		var page = params.query.page || 0;
+		if (page > 0) page = (page * 30) + 1;
 		console.time('Search Action');
 		response.writeHead(200, { 'Content-Type': 'application/json', "Access-Control-Allow-Origin":"*" });
 		var query=params.query.q.split(' ').map(function (v){ return "name LIKE '%"+escape(v)+"%'"}).join(' OR ');
-
+		console.log(query)
 		User.where(query, function (error, users){
 			if (error){
 				response.writeHead(420);
@@ -39,8 +47,8 @@ http.createServer(function (request, response){
 				response.write(JSON.stringify(users.map(function(user){ return user.to_object() })));
 				response.end();
 			}
+			console.timeEnd('Search Action')
 		})
-		console.timeEnd('Search Action')
 
 	} else if (params.pathname=="/new"){
 		console.time('New Action')
@@ -58,7 +66,8 @@ http.createServer(function (request, response){
 						response.write(JSON.stringify({message: [error.message]}));
 						response.end();
 					}
-					if (record && data) {
+
+					if (data){
 						response.write(JSON.stringify({
 							message: "User create with success!",
 							data: [data.insertId, record.to_object()]
@@ -72,6 +81,7 @@ http.createServer(function (request, response){
 					response.write(JSON.stringify(_user.errors.full_messages));
 					response.end();
 				}
+				console.timeEnd('New Action');
 			})
 
 		} else {
@@ -80,7 +90,6 @@ http.createServer(function (request, response){
 			}))
 			response.end();
 		}
-		console.timeEnd('New Action');
 	} else if (params.pathname=="/update"){
 		console.time('Update Action');
 		response.writeHead(200, {
@@ -119,12 +128,13 @@ http.createServer(function (request, response){
 					response.write(JSON.stringify({message: _user.errors.full_messages}));
 					response.end();
 				}
+				console.timeEnd('Update Action');
 			})
 	  } else {
 		response.write(JSON.stringify({message: "You not authorized to this action."}))
 		response.end();
 	  }
-	  console.timeEnd('Update Action');
+
 	} else if (params.pathname=="/delete"){
 		console.time('Delete Action');
 		response.writeHead(200, {
@@ -152,8 +162,8 @@ http.createServer(function (request, response){
 						} else {
 							response.write(JSON.stringify({message: "User #"+user.get('id')+" destroyed with success."}));
 						}
-						response.end();
 					}
+					response.end();
 				});
 
 				if (user && user.errors.size > 0){
@@ -161,12 +171,13 @@ http.createServer(function (request, response){
 					response.write(JSON.stringify({message: user.errors.full_messages}));
 					response.end();
 				}
+				console.timeEnd('Delete Action')
 			})
 		} else {
 			response.write(JSON.stringify({message: "You not authorized to this action."}))
 			response.end();
 		}
-		console.timeEnd('Delete Action')
+
 	} else if (params.pathname=="/getPhones"){
 		response.writeHead(200, {
 			'Content-Type': 'application/json',
@@ -185,9 +196,9 @@ http.createServer(function (request, response){
 					response.write(JSON.stringify(phones.map(function (phone){ return phone.to_object() })));
 					response.end()
 				}
+				response.end();
 			})
-		}
-		response.end()
+		} else response.end(JSON.stringify({ message: "You not authorized to this action." }))
 	} else {
 		var filePath = '.' + request.url;
 		var extname = path.extname(filePath);
