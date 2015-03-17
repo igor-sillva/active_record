@@ -31,9 +31,8 @@ http.createServer(function (request, response){
 		if (page > 0) page = (page * 30) + 1;
 		console.time('Search Action');
 		response.writeHead(200, { 'Content-Type': 'application/json', "Access-Control-Allow-Origin":"*" });
-		var query=params.query.q.split(' ').map(function (v){ return "name LIKE '%"+escape(v)+"%'"}).join(' OR ');
-		console.log(query)
-		User.where(query, function (error, users){
+		var query=params.query.q;
+		User.where({name_like: "%"+ escape(query) +"%"}, function (error, users){
 			if (error){
 				response.writeHead(420);
 				response.write(JSON.stringify({message: [error.message]}));
