@@ -113,7 +113,7 @@
 
 		<div class="page-header">
 			<h1><a href="http://www.github.com/3kg4kR/active_record" target="_blank">Active Record <small>Test</small></a></h1>
-			<h6>By 3kg4kR (igor_sillva@hotmail.com)</h6>
+			<h6>By 3kg4kR (<a href="mailto:igor_sillva@hotmail.com">igor_sillva@hotmail.com</a>)</h6>
 		</div>
 		<button class="btn btn-primary" type="button">Model User <span class="badge">0</span></button>
 		<div>&nbsp;</div>
@@ -349,8 +349,8 @@
 
 				User.create(name.value, password.value);
 
-				name.textContent = "";
-				password.textContent = "";
+				name.innerText = "";
+				password.innerText = "";
 			})
 
 			User.create = function create(name, password){
@@ -388,7 +388,6 @@
 					loading.style.display = "none";
 
 					tr = document.createElement('tr');
-					console.log(json.data)
 					td = "<td>"+ json.data[0] +"</td><td>"+ json.data[1].name +"</td><td>"+ json.data[1].password +"</td><td><ul><li><span onclick='User.destroy("+ json.data[0] +")' class='label label-danger delete'>Delete</span></li><li><span data-id='"+ json.data[0] +"' class='label label-info update'>Edit</span></li></ul></td>";
 
 					tr.innerHTML = td;
@@ -407,6 +406,7 @@
 				var json = JSON.parse(xhr.responseText);
 
 				loading.style.display = "none";
+
 				if (xhr.status != 420){
 					if (this.parentElement){
 						this.parentElement.parentElement.parentElement.parentElement.remove();
@@ -446,7 +446,7 @@
 						var tds = tr.querySelectorAll('td')
 						var name = tds[1]
 						var password = tds[2]
-
+						console.log(json)
 						name.textContent = json.data.name ? json.data.name : name.textContent;
 						password.textContent = json.data.password ? json.data.password : password.textContent;
 					} else {

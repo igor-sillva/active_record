@@ -19,7 +19,7 @@ function User (attributes){
 	this.validate_length_of('password', { minimum: 5 });
 	this.validate_format_of('name', { 'with': /[a-zA-Z]/g, message: "only letters" });
 	/* Has Secure Password */
-	this.has_secure_password();
+	this.has_secure_password({ validations: false });
 	/* Callbacks */
 	this.after_destroy(function show_message(response, record){
 	 	console.log("User #%s destroyed.", record.id);
@@ -27,7 +27,7 @@ function User (attributes){
 }
 /* Configure the model */
 User.fields('name', 'password', 'created_at', 'updated_at');
-/* Configure the Associations */
+/*  Configure the Associations*/
 User.has_many('phones', {
 	dependent: 'delete'
 });

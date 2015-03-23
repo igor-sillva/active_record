@@ -13,30 +13,33 @@ ActiveRecord.Base.establish_connection(function (){
 	/* Require the modules */
 	var User  = require('./user.js');
 	var Phone = require('./phone.js');
-	var assert = require('assert');
 
 	/* TEST */
 	User.create({
-		name: 'ooofo',
-		password: 'dsadas'
+		name: 'oo\'o\'\'\\\'fo',
+		password: 'dsa\'das'
 	})
+
+	User.where({conditions: {name_like: '%foo%'}, order: 'id'})
 
 	User.all(function (err, users){
 		var first = users[0];
 
 		console.log(first.to_json())
 		first.update_attributes({name: 'Jesus Cristo\\\''})
-		console.log(first.errors.full_messages)
+		console.log(first.to_json())
 		first
 		.phones(function (err, phones){
-			// console.log(phones)
+			console.log(phones.map(function (phone){ return phone.to_json() }))
 		})
-		// User.all()
+		// .create({
+		// 	number: '2199349212'
+		// })
+		User.all()
+		User.update(first.id, {name: 'gooAsd'})
+		User.destroy(first.id + 1);
+		User.find(first);
 	});
-	User.update(1, {name: 'goo'})
-	User.delete(1)
-	User.destroy(1)
-	User.find(1)
 });
 /* CREATE TABLES */
 require('./create_table').createTable();

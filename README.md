@@ -63,12 +63,14 @@ ActiveRecord.Base.configure_connection('path/to/database.json');
 ### Establish the connection:
 
 ```js
-ActiveRecord.Base.establish_connection();
+ActiveRecord.Base.establish_connection([callback]);
 ```
 
 ## Usage
 
 ### Model:
+Equal to the RAILS each model is a separate file. But you can create a single connection file and configuration of models, as follows in the examples below. Takes also that the file names are singular.
+`Example 1`: For each model create a separate file.
 ``` js
 var ActiveRecord = require('active_record');
 /* Exports the module */
@@ -82,28 +84,10 @@ function User (){
 	/** Validations */
 	this.validates('name', {
 		presence: true,
-		length: { minimum: 6, maximum: 25 },
-		exclusion: { in: ["root"] },
-		format: { with: /[a-Z]g/,  message: "only letters" }
+		length: { minimum: 6, maximum: 25 }
 	})
-
-	this.validate_presence_of('password');
 	this.validate_length_of('password', {minimum: 5});
-	this.validate_numericality_of('password');
-	this.has_secure_password();
-
-	/* Callbacks */
-	this.after_destroy(function show_message(user){
-	 	console.log("User #%s destroyed.", user);
-	});
-
-	this.before_destroy(function is_admin (){
-		if (this.get('role')==='admin'){
-			this.errors.add('name', 'is reserved');
-			return true;
-		}
-		return false;
-	});
+	this.has_secure_password(); /* Call this function after another validations */
 }
 
 /* Configure the model */
@@ -113,7 +97,34 @@ User.fields('name', 'password'); // Create dynamics finders: User.find_by_name, 
 User.has_many('phones');
 ```
 
-###Usage:
+`Example 2`: Configuration in a single file
+```js
+var ActiveRecord = require('../index');
+ActiveRecord.Base.configure_connection('./database.json');
+ActiveRecord.Base.establish_connection();
+/* Don't forget: Exports the models */
+exports.User = User;
+exports.Phone = Phone;
+
+ActiveRecord.Base.extend(User, ActiveRecord.Base);
+ActiveRecord.Base.extend(Phone, ActiveRecord.Base);
+
+function User (){
+	this.initialize(arguments[0]);
+}
+
+function Phone (){
+	this.initialize(arguments[0]);
+}
+
+User.has_many('phones');
+Phone.belongs_to('user');
+
+ActiveRecord.Base.close_connection();
+```
+
+
+### CRUD:
 ``` js
 /* Create, Update, Destroy */
 User.create({ name: 'Foo', password: 'Bar' }, function(data){ ... })
@@ -494,11 +505,63 @@ user.name = 'Foo';
 
 ### Validations
 `@methods`: `validates`, `validates_with`, `validate_presence_of`, `validate_uniqueness_of`, `validate_numericality_of`, `validate_length_of`, `validate_format_of`, `validate_exclusion_of`, `validate_inclusion_of`, `validate_confirmation_of`, `has_secure_password`: { `authenticate` }
+###
+```js
+function User(attr){
+	this.initiliaze(attr);
+
+	this.validates('name', {
+		presence: true
+	})
+
+	this.validate_length_of('name', { minimum: 5 })
+}
+```
 
 
 
 ### Callbacks
-`@methods`: `before_create`, `before_update`, `before_destroy`.
+`@methods`: `before_create`, `after_create` ,`before_update`, `after_update`, `before_destroy`, `after_destroy`, `before_find`, `after_find`.
+### before_create(record)
+
+### after_create(response, record)
+
+### before_update(record, new_values, old_values);
+
+### after_update(response, record)
+
+### before_destroy(record)
+
+### after_destroy(response, record)
+
+There are two way to configure the callback.
+Config in class
+Example:
+```js
+/* Before update */
+User.before_create(function (record){
+	if (record.get('name') == 'root'){
+		record.errors.add('name', 'Is reserved.');
+	}
+})
+
+/* After create */
+User.after_create(function (record){
+	console.log('User #'+ record.get('name') +'created with success.');
+})
+```
+#### Config in instance
+```js
+function User (attr){
+	this.initialize(attr);
+
+	this.before_create(checkName);
+
+	function checkName (){
+		if (this.name == 'root') this.errors.add('name', 'Is reserved.');
+	}
+}
+```
 
 ## License
 GPLv3

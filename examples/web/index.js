@@ -16,8 +16,8 @@ ActiveRecord.Base.configure_connection('../database.json')
 
 ActiveRecord.Base.establish_connection();
 
+var User = require('../user.js');
 http.createServer(function (request, response){
-	var User = require('../user.js');
 	var params = url.parse(request.url, true)
 	var index = "";
 	if (params.pathname=="/index" || params.pathname=="/"){
@@ -32,7 +32,7 @@ http.createServer(function (request, response){
 		console.time('Search Action');
 		response.writeHead(200, { 'Content-Type': 'application/json', "Access-Control-Allow-Origin":"*" });
 		var query=params.query.q;
-		User.where({name_like: "%"+ escape(query) +"%"}, function (error, users){
+		User.where({ conditions: { name_like: "%"+ escape(query) +"%" }, order: 'id' }, function (error, users){
 			if (error){
 				response.writeHead(420);
 				response.write(JSON.stringify({message: [error.message]}));
@@ -110,14 +110,10 @@ http.createServer(function (request, response){
 						response.write(JSON.stringify({message: [error.message]}));
 						response.end();
 					} else {
-						if(!data || data.changedRows==0){
-							response.write(JSON.stringify({message: 'Nothing to do.' }));
-						} else {
-							response.write(JSON.stringify({
-								message: "User #"+this.id+" updated with success.",
-								data: this.to_object()
-							}));
-						}
+						response.write(JSON.stringify({
+							message: "User #"+this.id+" updated with success.",
+							data: this.to_object()
+						}));
 						response.end();
 					}
 				})

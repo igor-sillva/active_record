@@ -1,8 +1,12 @@
 # Changes #
 
+## 0.1.5 / 2015-03-23
+
+	- Fix Postgress bugs ( Thx to davidhq )
+
 ## 0.1.4 / 2014-12-13
 
-	- I don't remember i do.
+	- I don't remember what i do.
 
 ## 0.1.3 / 2014-11-16
 
