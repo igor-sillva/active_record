@@ -6,7 +6,7 @@ Rails ActiveRecord inspired for Nodejs.
 
 ## VERSION
 
-    0.1.4
+    0.1.5
 
 ## Instalation
 ```bash
@@ -99,7 +99,7 @@ User.has_many('phones');
 
 `Example 2`: Configuration in a single file
 ```js
-var ActiveRecord = require('../index');
+var ActiveRecord = require('active_record');
 ActiveRecord.Base.configure_connection('./database.json');
 ActiveRecord.Base.establish_connection();
 /* Don't forget: Exports the models */
