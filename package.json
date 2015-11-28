@@ -6,7 +6,7 @@
 	"id": "active_record",
 	"_id": "active_record@0.1.5",
 	"license": "GPLv3",
-	"keywords": ["active_record", "mysql", "sqlite3", "postgre", "CRUD"],
+	"keywords": ["active_record", "mysql", "sqlite3", "postgre", "CRUD", "record", "rails", "ruby", "active"],
 	"author": {
 		"name": "Igor Michael",
 		"email": "3kg4kr@gmail.com"
@@ -15,12 +15,14 @@
 		"any-db": "0.3.5",
 		"mysql": "2.0.0-alpha7",
 		"pg": "0.12.3",
+		"pg-format": "*",
 		"sqlite3": "*"
 	},
 	"devDependencies": {
 		"any-db": "0.3.5",
 		"mysql": "2.0.0-alpha7",
 		"pg": "0.12.3",
+		"pg-format": "*",
 		"sqlite3": "*"
 	},
 	"homepage": "https://github.com/3kg4kR/active_record.git",
