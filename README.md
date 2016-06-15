@@ -1,5 +1,7 @@
 # ActiveRecordjs
 
+![ActiveRecordjs](./logo.png "ActiveRecordjs")
+
 Rails ActiveRecord inspired for Nodejs.
 
 [![Build Status](https://travis-ci.org/3kg4kR/active_record.svg?branch=master)](https://travis-ci.org/3kg4kR/active_record)
