@@ -1,65 +1,86 @@
 var http = require("http");
 var url  = require('url');
-var ActiveRecord = require('../../index');
 var path = require('path');
 var fs = require('fs');
 var querystring = require('querystring');
 
-ActiveRecord.configure('default_models_path', '../');
-
-ActiveRecord.Base.connection.set('env', 'prod');
-ActiveRecord.Base.configure_connection('../database.json')
-// ActiveRecord.Base.configure_connection({
-// 	"driver": "sqlite3",
-// 	"filename": "../active_record_tests.sqlite3"
-// });
-
-ActiveRecord.Base.establish_connection();
+var ActiveRecord = require('../console.js').ActiveRecord
+//require('../../index');
+// ActiveRecord.configure('default_models_path', "/../");
+// ActiveRecord.Base
+// .configure_connection('../database.json')
+// .establish_connection();
 
 var User = require('../user.js');
+
 http.createServer(function (request, response){
 	var params = url.parse(request.url, true)
 	var index = "";
+
+	console.log("\n\033[1;34m%s \033[0m%s (%s)\033[0m", request.method, request.url, request.connection.remoteAddress);
+	if (params.query)
+		console.log("  Parameters: %j\n", params.query);
+	else console.log("\n")
+
 	if (params.pathname=="/index" || params.pathname=="/"){
-		console.time('Index Action');
 		index = fs.readFileSync('./index.html');
 		response.writeHead(200, {"Content-Type": "text/html"});
 		response.end(index);
-		console.timeEnd('Index Action');
 	} else if (params.pathname=="/search"){
-		var page = params.query.page || 0;
-		if (page > 0) page = (page * 30) + 1;
-		console.time('Search Action');
 		response.writeHead(200, { 'Content-Type': 'application/json', "Access-Control-Allow-Origin":"*" });
 		var query=params.query.q;
-		User.where({ conditions: { name_like: "%"+ escape(query) +"%" }, order: 'id' }, function (error, users){
+		var page=params.query.page || 0;
+		var force=params.query.force || "false";
+
+		if (force=="true") User.cache.clear()
+		if (page > 0) page = (page * 15);
+
+		var conditions = { name_like: "%"+ escape(query) +"%" }
+		User.where({ conditions: conditions, order: 'id', limit: 15, offset: page },
+		function (error, users){
 			if (error){
 				response.writeHead(420);
-				response.write(JSON.stringify({message: [error.message]}));
+				response.write(JSON.stringify({message: error.name +':'+ error.message}));
 				response.end();
+				return false
 			}
 
 			if (users && users.length == 0){
 				response.write(JSON.stringify({message: "User not found."}));
 				response.end();
 			} else {
-				response.write(JSON.stringify(users.map(function(user){ return user.to_object() })));
-				response.end();
+
+				User.count('*', conditions, function (error, total){
+					User.join('phones', { conditions: conditions, order: 'id', limit: 15, offset: page },
+					function (error, phones){
+						users = users.map(function (user){
+							phones.map(function (phone){
+								if (phone.get('user_id') == user.get('id')){
+									if ( !Array.isArray(user.get('phones')) ) user.set('phones', []);
+									user.get('phones').push(phone.to_object());
+								}
+							})
+							return user.to_object();
+						})
+						response.write(JSON.stringify({ records: users, total: total }));
+						response.end();
+					})
+				})
 			}
-			console.timeEnd('Search Action')
 		})
 
 	} else if (params.pathname=="/new"){
-		console.time('New Action')
 		response.writeHead(200, { 'Content-Type': 'application/json', "Access-Control-Allow-Origin":"*" });
 		if (request.method=="POST"){
-			var user = "";
-			request.on("data", function (data){
-				user += data;
+			var data = "";
+			request.on("data", function (d){
+				data += d;
 			})
 
 			request.on("end", function (){
-				var _user = User.create(JSON.parse(user), function (error, data, record){
+				var user = new User(JSON.parse(data))
+
+				user.save(function (error, data, record){
 					if (error) {
 						response.writeHead(420);
 						response.write(JSON.stringify({message: [error.message]}));
@@ -75,13 +96,13 @@ http.createServer(function (request, response){
 					}
 				});
 
-				if (_user && _user.errors.size > 0){
+				if (user && user.errors.size > 0){
 					response.writeHead(420)
-					response.write(JSON.stringify(_user.errors.full_messages));
+					response.write(JSON.stringify(user.errors.full_messages));
 					response.end();
 				}
-				console.timeEnd('New Action');
-			})
+
+		})
 
 		} else {
 			response.write(JSON.stringify({
@@ -90,21 +111,20 @@ http.createServer(function (request, response){
 			response.end();
 		}
 	} else if (params.pathname=="/update"){
-		console.time('Update Action');
 		response.writeHead(200, {
 			'Content-Type': 'application/json',
 			"Access-Control-Allow-Origin":"*"
 		});
 		if (request.method=="POST"){
-			var user = "";
-			request.on("data", function (data){
-				user += data;
+			var data = "";
+			request.on("data", function (d){
+				data += d;
 			})
 
 			request.on("end", function (){
-				var __user = JSON.parse(user);
-				var _user=new User(__user[0]);
-				_user.update_attributes(__user[1].attr, function (error, data){
+				var user = new User(JSON.parse(data)[0]);
+				user.update_attributes(JSON.parse(data)[1].attr,
+				function (error, data){
 					if (error){
 						response.writeHead(420);
 						response.write(JSON.stringify({message: [error.message]}));
@@ -118,12 +138,11 @@ http.createServer(function (request, response){
 					}
 				})
 
-				if (_user && _user.errors.size > 0){
+				if (user && user.errors.size > 0){
 					response.writeHead(420)
-					response.write(JSON.stringify({message: _user.errors.full_messages}));
+					response.write(JSON.stringify({message: user.errors.full_messages}));
 					response.end();
 				}
-				console.timeEnd('Update Action');
 			})
 	  } else {
 		response.write(JSON.stringify({message: "You not authorized to this action."}))
@@ -131,7 +150,6 @@ http.createServer(function (request, response){
 	  }
 
 	} else if (params.pathname=="/delete"){
-		console.time('Delete Action');
 		response.writeHead(200, {
 			'Content-Type': 'application/json',
 			"Access-Control-Allow-Origin":"*"
@@ -166,34 +184,12 @@ http.createServer(function (request, response){
 					response.write(JSON.stringify({message: user.errors.full_messages}));
 					response.end();
 				}
-				console.timeEnd('Delete Action')
 			})
 		} else {
 			response.write(JSON.stringify({message: "You not authorized to this action."}))
 			response.end();
 		}
 
-	} else if (params.pathname=="/getPhones"){
-		response.writeHead(200, {
-			'Content-Type': 'application/json',
-			"Access-Control-Allow-Origin":"*"
-		});
-		if (request.method=="GET"){
-			var user_id=params.query.user_id;
-			var user = new User({id: user_id});
-
-			user.phones(function (error, phones){
-				if (error){
-					response.write(JSON.stringify({message: error.message}));
-					response.end();
-				}
-				if (phones){
-					response.write(JSON.stringify(phones.map(function (phone){ return phone.to_object() })));
-					response.end()
-				}
-				response.end();
-			})
-		} else response.end(JSON.stringify({ message: "You not authorized to this action." }))
 	} else {
 		var filePath = '.' + request.url;
 		var extname = path.extname(filePath);

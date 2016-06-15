@@ -5,12 +5,16 @@
 	    <meta http-equiv="X-UA-Compatible" content="IE=edge">
 	    <meta name="viewport" content="width=device-width, initial-scale=1">
 		<!-- Latest compiled and minified CSS -->
-		<link rel="stylesheet" href="dist/css/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" href="dist/css/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" href="dist/jquery.terminal.css">
+		<script type="text/javascript" src="dist/jquery-2.1.4.min.js"></script>
+		<script type="text/javascript" src="dist/js/bootstrap.min.js"></script>
+		<script type="text/javascript" src="dist/jquery.terminal-0.8.8.min.js"></script>
 		<title>Active Record</title>
 		<!--[if lt IE 9]>
 	      	<script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
 	      	<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-	    <![endif]-->
+	  <![endif]-->
 		<style type="text/css">
 			body {
 				width: 900px;
@@ -31,88 +35,66 @@
 				left: 48%;
 			}
 
-			.terminal {
-				position: fixed;
-				z-index: 9999;
-				width: 99%;
-				left: 5px;
-				top: -206px;
-				border: 1px solid #000;
-				background: rgba(0,0,0,0.5);
-				transition: top 0.1s linear 0.1s;
-				overflow: hidden;
-				font-family: ProggyCleanTT;
+			@keyframes blink {
+			  0% { opacity: 1; }
+			  25% { opacity: 0; }
+			  50% { opacity: 0; }
+			  100% { opacity: 1; }
 			}
-			/*.terminal .terminal-header {
-				text-align: center;
-				font-weight: bold;
-				padding-top: 5px;
-				color: #CCC;
-			}*/
-			.terminal .terminal-body {
-				width: 100%;
-				height: 180px;
-				background: rgba(0,0,0,0.5);
-				color: #CCC;
-				padding: 5px 0 0 5px;
-				overflow: hidden;
-				overflow-y: visible;
+			@-webkit-keyframes blink {
+			  0% { opacity: 1; }
+			  25% { opacity: 0; }
+			  50% { opacity: 0; }
+			  100% { opacity: 1; }
 			}
-
-			.terminal-body ul {
-
-				list-style: none;
-				padding-left: 5px;
+			@-ms-keyframes blink {
+			  0% { opacity: 1; }
+			  25% { opacity: 0; }
+			  50% { opacity: 0; }
+			  100% { opacity: 1; }
 			}
-
-			.terminal .terminal-footer input {
-				width: 100%;
-				background-color: rgba(0,0,0,0.5);
-				border: 1px solid rgba(0,0,0,0.5);
-				color: #CCC;
+			@-moz-keyframes blink {
+			  0% { opacity: 1; }
+			  25% { opacity: 0; }
+			  50% { opacity: 0; }
+			  100% { opacity: 1; }
 			}
-
-			.terminal .terminal-footer form {
-				margin: 0;
+			.prompt, .command {
+			  color: #0c0;
+			  text-shadow: 0 0 3px rgba(0,100,0,50);
 			}
-
-			.show-terminal {
-				position: fixed;
-				z-index: 10000;
-				width: 100px;
-				left: 50%;
-				top: 0px;
-				padding: 5px;
-				margin-left: -5%;
-				border-left: 1px solid #000;
-				border-right: 1px solid #000;
-				border-top: 1px solid #000;
-				border-bottom: 1px solid rgba(0,0,0,0.5);
-				background: rgba(0,0,0,0.5);
-				text-align: center;
-				transition: top 0.1s linear 0.1s;
+			.cursor {
+			  background: #0c0;
+			  animation: blink 1s linear infinite;
+			  -webkit-animation: blink 1s infinite linear;
+			  -ms-animation: blink 1s infinite linear;
+			  -moz-animation: blink 1s infinite linear;
+			  -webkit-box-shadow: 0 0 5px rgba(0,100,0,50);
+			  -moz-box-shadow: 0 0 5px rgba(0,100,0,50);
+			  -ms-box-shadow: 0 0 5px rgba(0,100,0,50);
+			  -o-box-shadow: 0 0 5px rgba(0,100,0,50);
+			  box-shadow: 0 0 5px rgba(0,100,0,50);
 			}
 		</style>
 	</head>
 
 	<body>
-		<div class="show-terminal" id="off">$_ ~:</div>
-		<div class="terminal">
-			<!-- <div class="terminal-header">/home/3kg4kR/active_record/tests</div> -->
-			<div class="terminal-body">
-				<ul class="code"></ul>
+		<div class="modal fade">
+			<div class="modal-header">
+				Associations
 			</div>
-			<div class="terminal-footer">
-				<form class="form-inline" action="/" method="POST" name="terminal-form">
-					<input type="text" />
-					<input type="submit" value="Search" style="display:none">
-				</form>
-			</div>
+			<div class="modal-body"></div>
 		</div>
+
 		<div id="loading" class="label label-info">Loading...</div>
 
 		<div class="page-header">
-			<h1><a href="http://www.github.com/3kg4kR/active_record" target="_blank">Active Record <small>Test</small></a></h1>
+			<h1>
+				<a href="http://www.github.com/3kg4kR/active_record" target="_blank">
+					<img src="logo.png">
+				</a>
+				<small>test</small>
+			</h1>
 			<h6>By 3kg4kR (<a href="mailto:igor_sillva@hotmail.com">igor_sillva@hotmail.com</a>)</h6>
 		</div>
 		<button class="btn btn-primary" type="button">Model User <span class="badge">0</span></button>
@@ -146,120 +128,22 @@
 						<th style="width: 50px">#</th>
 						<th>Name</th>
 						<th>Password</th>
+						<th>Phones</th>
 						<th style="width: 150px">Actions</th>
 					</tr>
 				</thead>
 				<tbody class="response-body"></tbody>
 			</table>
+			<nav><ul class="pagination"></ul></nav>
 		</section>
+
+		<footer>
+			<div id="cmd"></div>
+		</footer>
 
 		<!-- JUST FOR FUN -->
 		<script type="text/javascript">
 		function User () {};
-
-		if (sessionStorage){
-			var commands = sessionStorage['commands'];
-			if (commands){
-				commands = JSON.parse(commands);
-			} else {
-				sessionStorage['commands'] = '[]';
-			}
-		} else {
-			var commands = [];
-		}
-		</script>
-
-		<script type="text/javascript">
-			var terminal = document.querySelector('.terminal');
-			var terminalBody = terminal.querySelector('.terminal-body');
-			var terminalBodyUl = terminal.querySelector('.terminal-body .code');
-			var terminalForm = terminal.querySelector('form[name="terminal-form"]');
-			var openTerminal = document.querySelector('.show-terminal');
-			var input = terminalForm.querySelector('input[type="text"]');
-			input.value = '';
-
-			var counter = 1;
-			input.addEventListener('keypress', function (evt){
-
-				var value = undefined;
-				if (evt.keyCode == 38){ // Up
-					if (commands.length>0 && counter>0){
-						value = commands[commands.length - counter];
-						counter++;
-					}
-				}
-
-				if (evt.keyCode == 40){ // Down
-					if (commands.length>0 && counter>0){
-						value = commands[(commands.length - counter) + 2];
-						counter--;
-					}
-				}
-
-				if (evt.keyCode==38||evt.keyCode==40){
-					if (value) this.value = value;
-					else this.value = '';
-				}
-
-				if (counter<=0) counter = 1;
-				if (counter>commands.length) counter = commands.length;
-			})
-
-			openTerminal.addEventListener('click', function (evt){
-				if (this.id=="off"){
-					this.style.top = "206px";
-					this.id="on";
-					terminal.style.top = "0px";
-				} else {
-					this.style.top = "0px";
-					this.id="off";
-					terminal.style.top = "-206px";
-				}
-
-				var input = terminalForm.querySelector('input[type="text"]');
-				input.innerText = "";
-				input.focus();
-			})
-
-			terminalForm.addEventListener('submit', function (evt){
-				evt.preventDefault();
-				var input = evt.target[0]
-				var line = document.createElement('li');
-
-				if (input.value !== ""){
-					var exec = null;
-					var resultLine = document.createElement('li');
-
-					line.textContent = "$> ~: "+ input.value;
-					terminalBodyUl.appendChild(line);
-
-					try {
-						exec = eval(input.value);
-						resultLine.style.color = 'white';
-					} catch (Exception){
-						exec = Exception;
-						resultLine.style.color = 'red';
-					}
-
-					resultLine.textContent = exec;
-					terminalBodyUl.appendChild(resultLine);
-
-					terminalBody.scrollTop = 100000;
-
-					if (input.value!=commands[commands.length-1]){
-						commands.push(input.value);
-						sessionStorage['commands'] = JSON.stringify(commands);
-						counter = 1;
-					}
-				}
-
-				input.value = "";
-				input.focus();
-			})
-
-			var clear = function clear (){
-				return terminalBodyUl.innerHTML = "";
-			}
 		</script>
 
 		<script type="text/javascript">
@@ -272,29 +156,37 @@
 
 			loading.style.display = "none";
 
-			User.search = function search (value){
+			User.search = function search (value, page, force){
+				page = page || 0;
+				force = force || false;
 				var xhr = new XMLHttpRequest();
 				loading.style.display = "block";
 
-				xhr.open("GET", "/search?q="+value , false);
+				xhr.open("GET", "/search?q="+value+"&page="+page+"&force="+force , false);
 				xhr.send();
 
+				json = JSON.parse(xhr.responseText);
 				if (xhr.status == 200){
 					response.innerHTML = "";
-					loading.style.display = "none";
 					json = JSON.parse(xhr.responseText);
-					count.innerHTML = json.length || 0;
+					loading.style.display = "none";
+					count.innerHTML = json.total || 0;
 
+					Alert.innerHTML = json.total + " User(s) found.";
+					Alert.setAttribute('class', "alert alert-warning");;
+					Alert.style.display = "block";
 					if (json.message){
 						Alert.innerHTML = json.message;
-						Alert.setAttribute('class', "alert alert-warning");;
+						Alert.setAttribute('class', "alert alert-danger");;
 						Alert.style.display = "block";
 					} else {
-						for (i in json){
+						var records = json.records;
+						for (i in records){
 							tr = document.createElement('tr');
-							tds = "<td>"+ json[i].id +"</td><td>"+ json[i].name +"</td><td>"+ json[i].password +"</td><td><ul><li><span data-id='"+ json[i].id +"' class='label label-danger delete'>Delete</span></li><li><span data-id='"+ json[i].id +"' class='label label-info update'>Edit</span></li></ul></td>";
+							tds = "<td>"+ records[i].id +"</td><td>"+ records[i].name +"</td><td>"+ records[i].password +"</td><td><span class='label label-success'>+</span>"+ (records[i].phones ? records[i].phones.map(function (phone){ return phone.number }).join(', ') : "") +"</td><td><ul><li><span data-id='"+ records[i].id +"' class='label label-danger delete'>Delete</span></li><li><span data-id='"+ records[i].id +"' class='label label-info update'>Edit</span></li></ul></td>";
 							tr.innerHTML = tds;
-							tr.id = "user_"+ json[i].id;
+							tr.id = "user_"+ records[i].id;
+							tr.setAttribute('data-id', records[i].id);
 							response.appendChild(tr)
 						}
 
@@ -303,7 +195,7 @@
 						[].forEach.call(deletes, function (del){
 							del.addEventListener('click', function (evt){
 								evt.preventDefault();
-								User.destroy.bind(this)(this.dataset.id);
+								User.destroy.bind(this)(this.dataset.id)
 							})
 						})
 
@@ -324,10 +216,50 @@
 							})
 						})
 					}
+
+					// Pagination
+					var totalRecords = json.total || 0;
+					var pagination = document.querySelector('.pagination');
+
+					var previous = "<li class=\"%class\">\
+			      <a href=\"#\" aria-label=\"Previous\" onclick=\"User.search('"+value+"',"+ (page >0 ? (page - 1) : page )+")\">\
+			        <span aria-hidden=\"true\">&laquo; Anterior</span>\
+			      </a>\
+			    </li>"
+
+			    var next = "<li class=\"%class\">\
+			      <a href=\"#\" aria-label=\"Next\" onclick=\"User.search('"+value+"',"+ (page + 1)+")\">\
+			        <span aria-hidden=\"true\">&raquo; Próximo</span>\
+			      </a>\
+			    </li>"
+
+					var link = "<li class='%class'><a href='#' onclick='User.search(%p,%page)'>%number</a></li>";
+
+					if (totalRecords > 15){
+						var last = totalRecords / 15;
+						var nav = "";
+						if (page == 0) previous = previous.replace("%class", "disabled");
+ 						nav += previous;
+
+						for (i=0; i<last; i++){
+							li = link.replace('%p', '"'+ value +'"').replace('%page', i).replace('%number', i+1);
+							if (i == page) li = li.replace('%class', 'active')
+							nav += li;
+						}
+
+						if (page == i-1) next = next.replace("%class", "disabled");
+						nav += next;
+
+						pagination.innerHTML = nav;
+					} else {
+						pagination.innerHTML = "";
+					}
+					//
 				} else {
-					Alert.innerHTML = json.message;
+					Alert.innerHTML = json.message || "Status: ("+ xhr.status + ") Some error was happens. :X";
 					Alert.classList.add("alert-danger");
 					Alert.style.display = "block";
+					loading.style.display = "none";
 				}
 
 				return JSON.parse(xhr.responseText);
@@ -343,6 +275,7 @@
 			var create = document.querySelector('form[name="create"]');
 
 			create.addEventListener('submit', function (evt){
+				evt.stopPropagation();
 				evt.preventDefault();
 				var name = evt.target[0];
 				var password = evt.target[1];
@@ -388,10 +321,11 @@
 					loading.style.display = "none";
 
 					tr = document.createElement('tr');
-					td = "<td>"+ json.data[0] +"</td><td>"+ json.data[1].name +"</td><td>"+ json.data[1].password +"</td><td><ul><li><span onclick='User.destroy("+ json.data[0] +")' class='label label-danger delete'>Delete</span></li><li><span data-id='"+ json.data[0] +"' class='label label-info update'>Edit</span></li></ul></td>";
+					td = "<td>"+ json.data[0] +"</td><td>"+ json.data[1].name +"</td><td>"+ json.data[1].password +"</td><td>Add Phones</td><td><ul><li><span onclick='User.destroy("+ json.data[0] +")' class='label label-danger delete'>Delete</span></li><li><span data-id='"+ json.data[0] +"' class='label label-info update'>Edit</span></li></ul></td>";
 
 					tr.innerHTML = td;
 					tr.id = "user_"+ json.data[0];
+					tr.setAttribute('data-id', json.data[0]);
 					count.innerHTML = new Number(count.innerHTML) + 1;
 					response.appendChild(tr);
 					return json.message;
@@ -401,7 +335,7 @@
 			User.destroy = function destroy (id){
 				var xhr = new XMLHttpRequest();
 				xhr.open("POST", '/delete', false);
-				xhr.send(JSON.stringify({id :id}));
+				xhr.send(JSON.stringify({id: id}));
 
 				var json = JSON.parse(xhr.responseText);
 
@@ -419,10 +353,12 @@
 					Alert.innerHTML = "<li>"+ json.message + "</li>";
 					Alert.setAttribute('class', "alert alert-warning");;
 					Alert.style.display = "block";
+					return true;
 				} else {
 					Alert.innerHTML = json.message;
 					Alert.setAttribute('class', "alert alert-danger");;
 					Alert.style.display = "block";
+					return false;
 				}
 				return json.message;
 			}
@@ -481,6 +417,34 @@
 				}
 				return json.message;
 			}
+		</script>
+
+		<script type="text/javascript">
+			jQuery(function($, undefined) {
+		    $('#cmd').terminal(function(command, term) {
+		        if (command !== '') {
+		            try {
+		                var result = window.eval(command);
+		                if (result !== undefined) {
+		                    term.echo(new String(result));
+		                }
+		            } catch(e) {
+		                term.error(new String(e));
+		            }
+		        }
+		    }, {
+		        greetings: ['ActiveRecord v 1.5',
+		        	'By 3kg4kR (igor_sillva@hotmail.com)',
+		        	'Usage:',
+		        	'\t- User.search(name, [page], [force?])',
+		        	'\t- User.create(name, password)',
+		        	'\t- User.update(id, name, password)',
+		        	'\t- User.destroy(id)\n'
+		        	].join('\n'),
+		        name: 'active_record',
+		        height: 200,
+		        prompt: 'active_record> '});
+			});
 		</script>
 	</body>
 </html>

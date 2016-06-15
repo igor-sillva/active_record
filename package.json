@@ -1,12 +1,12 @@
 {
 	"name" : "active_record",
 	"description": "Rails ActiveRecord inspired for Nodejs.",
-	"version" : "0.1.5",
+	"version" : "0.1.6",
 	"main": "./index",
 	"id": "active_record",
-	"_id": "active_record@0.1.5",
+	"_id": "active_record@0.1.6",
 	"license": "GPLv3",
-	"keywords": ["active_record", "mysql", "sqlite3", "postgre", "CRUD", "record", "rails", "ruby", "active"],
+	"keywords": ["active_record", "mysql", "sqlite3", "postgre", "record", "rails", "ruby", "active", "model"],
 	"author": {
 		"name": "Igor Michael",
 		"email": "3kg4kr@gmail.com"

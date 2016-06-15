@@ -1,5 +1,10 @@
 # Changes #
 
+## 0.1.6 / 2016-06-15
+
+	- Fixed bug on validation uniqueness of
+	- Fixed more bugs
+
 ## 0.1.5 / 2015-03-23
 
 	- Fix Postgress bugs ( Thx to davidhq )
