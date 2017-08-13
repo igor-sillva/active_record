@@ -1,0 +1,14 @@
+extends layout.pug
+
+block yield
+	- record = JSON.parse(record)
+	form.form-horizontal(method="POST", action="/"+ class_name +"/destroy/"+ id)
+		input(type="hidden", value=record['id'], name="id")
+		fieldset
+			.form-group
+				.col-sm-10
+					h4 Do you want to delete this #{Klass.to_s()} "#{record['name']}"?
+			.form-group
+				.col-sm-10
+					button.btn.btn-danger(type="submit")
+						span.glyphicon.glyphicon-ok   Confirm

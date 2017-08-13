@@ -1,0 +1,20 @@
+nav.navbar.navbar-default.navbar-fixed-top
+  .container
+    .navbar-header
+      a.navbar-brand(href='/')
+        | ActiveRecord&nbsp;
+        small #{VERSION}
+    .navbar-collapse.collapse
+      ul.nav.navbar-nav.navbar-right
+        li(role='presentation')
+          a(href='/')
+            span.glyphicon.glyphicon-home
+        li(role='presentation')
+          a(href='/wiki')
+            span.glyphicon.glyphicon-book
+        li(role='presentation')
+          a(href='/console')
+            span.glyphicon.glyphicon-console
+        li(role='presentation')
+          a(href='/help')
+            span.glyphicon.glyphicon-question-sign

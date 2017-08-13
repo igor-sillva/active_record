@@ -1,5 +1,11 @@
 var ActiveRecord = require('../index');
-ActiveRecord.Base.configure_connection('./database.json');
+ActiveRecord.Base.configure_connection({
+	"driver": "mysql",
+	"hostname": "localhost",
+	"user": "root",
+	"password": "",
+	"database": "active_record"
+});
 ActiveRecord.Base.establish_connection();
 /* Exports */
 exports.Categoria = Categoria;
@@ -25,15 +31,36 @@ function Tag (){
 }
 
 Categoria.has_many_and_belongs_to('tags');
+Tag.has_many_and_belongs_to('categorias', { join_table: 'categorias_tags' });
 
-// Categoria.create({name: 'Descanso'});
-// Tag.create({name: 'Lápis'})
+console.time("BEGIN");
+console.log(Categoria.create({name: 'Descanso'}).errors.full_messages);
+console.log(Tag.create({name: 'Lápis'}).errors.full_messages);
 
 Categoria.first(function (error, categoria){
 	categoria = categoria[0];
 
-	categoria.tags(function (error, tags){
+	categoria && categoria.tags(function (error, tags){
 		console.log(tags.map(function (tag){ return tag.to_json()}));
 	})
-	.create({name: 'lambermano'}, ActiveRecord.Base.close_connection)
+	.create({name: 'lambermano'})
 })
+
+Categoria.all(function (error, categorias){
+	categorias.map(function (categoria){
+		console.log(categoria.to_json());
+		categoria.tags(function (error, tags){
+			tags.map(function (tag){ 
+				console.log(tag.to_json()); 
+				tag.categorias(function (error, categorias){ 
+					console.log(categorias.map(function (categoria){ 
+						return categoria.to_json();
+					}));
+					console.timeEnd("BEGIN");
+				}) 
+			})
+		})
+	})
+})
+
+setTimeout(ActiveRecord.Base.close_connection, 3000)

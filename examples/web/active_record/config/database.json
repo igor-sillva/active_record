@@ -1,0 +1,24 @@
+{
+	"dev": {
+		"driver": "sqlite3",
+		"filename": "./db/active_record.sqlite3"
+	},
+
+	"test": {
+		"driver": "mysql",
+		"hostname": "localhost",
+		"port": "3306",
+		"user": "root",
+		"password": "",
+		"database": "active_record"
+	},
+
+	"prod": {
+		"driver": "postgres",
+		"user": "teste",
+		"password": "teste",
+		"hostname": "localhost",
+		"database": "active_record",
+		"port": "5432"
+	}
+}

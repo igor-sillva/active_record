@@ -1,0 +1,28 @@
+extends layout.pug
+
+block yield
+	if records.length > 0
+		- records = records.map(function (record){ return JSON.parse(record) })
+		table.table.table-condesed.table-striped.table-responsive
+			thead
+				tr
+					- var keys = Object.keys(records[0])
+					each key in keys
+						th= key.toUpperCase()
+					th
+			tbody
+				each record in records
+					tr
+						each key in keys
+							- isPass = key =="password"
+							td= isPass ? record[key].split('').map(function (s){ return "#" }).join('') : record[key]
+						td
+							.btn-group
+								a.btn.btn-default.btn-xs(href="/"+ (class_name || "") +"/show/"+ record['id'])
+									span.glyphicon.glyphicon-info-sign
+								a.btn.btn-default.btn-xs(href="/"+ (class_name || "") +"/edit/"+ record['id'])
+									span.glyphicon.glyphicon-pencil
+								a.btn.btn-danger.btn-xs(href="/"+ (class_name || "") +"/destroy/"+ record['id'])
+									span.glyphicon.glyphicon-remove
+	else
+		p No #{class_name} found

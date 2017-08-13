@@ -1,0 +1,16 @@
+extends layout.pug
+
+block yield
+	.fieldset
+		dl
+			- record = JSON.parse(record)
+			- var keys = Object.keys(record)
+			each key in keys
+				dt
+					span.label.label-info= key.toUpperCase()
+				dd.well
+					if key == "password"
+						= record[key].split('').map(function (s){ return "#" }).join('')
+					else
+						= record[key]
+

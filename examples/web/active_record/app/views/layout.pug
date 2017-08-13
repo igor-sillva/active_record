@@ -1,0 +1,75 @@
+doctype html
+html(lang="pt-br")
+	head
+		title ActiveRecord&nbsp;#{VERSION}
+		meta(charset="utf-8")
+		meta(name="viewport", content="width=device-width, initial-scale=1")
+		link(rel="stylesheet", type="text/css" href="/app/assets/bootstrap/css/bootstrap.min.css")
+		link(rel="stylesheet", type="text/css" href="/app/assets/css/jquery.terminal.css")
+		link(rel="stylesheet", type="text/css" href="/app/assets/css/application.css")
+		block head
+
+	body
+		include includes/header
+		.container-fluid
+			.row
+				.col-sm-3.col-md-2
+					.well.sidebar-nav
+						ul.nav.nav-pills.nav-stacked
+							li.nav-header
+								h6 NAVIGATION
+							li(class=(class_name == null ? "active" : ""))
+								a(href='/')
+									span.glyphicon.glyphicon-home  Root
+							li(class=(class_name == "wiki" ? "active" : ""))
+								a(href='/wiki')
+									span.glyphicon.glyphicon-book  Wiki
+							li(class=(class_name == "console" ? "active" : ""))
+								a(href='/console')
+									span.glyphicon.glyphicon-console  Console
+							li(class=(class_name == "help" ? "active" : ""))
+								a(href='/help')
+									span.glyphicon.glyphicon-question-sign  Help
+							li.nav-header
+								h6 MODELS
+							each model in Models
+								li(class=(class_name == model.to_s() ? "active" : ""))
+									a(href="/"+ model.to_s())
+										= capitalize(model.to_s())
+				.col-sm-9.col-md-10
+					.row-fluid
+						.page-header
+							h1 ActiveRecord::#{title}
+						if (Flash.length > 0)
+							each flash in Flash
+								.alert.alert-dismissable(class="alert-"+ flash.type, role="alert")
+									button.close(type="button", data-dismiss="alert")
+										span &times;
+									= flash.message
+								- Flash.shift()
+						if Klass
+							ul.nav.nav-tabs
+								li(class=(action_name == "index" ? "active" : ""))
+									a(href="/"+ class_name, type="button", class=(action_name == "index" ? "disabled" : ""))
+										span.glyphicon.glyphicon-list  Index
+								if action_name == "index" || action_name == "new"
+									li(class=(action_name == "new" ? "active" : ""))
+										a(href="/"+ class_name +"/new", type="button", class=(action_name == "new" ? "disabled" : ""))
+											span.glyphicon.glyphicon-plus  Create
+								if action_name == "show" || action_name == "edit" || action_name == "destroy"
+									- var actions = ["show", "edit", "destroy"]
+									each act in actions
+										li(class=(action_name == act ? "active" : ""))
+											a(href=(path.join("/", class_name, act, id)), type="button", class=(action_name == act ? "disabled" : ""))
+												- var icon = (act == "show" ? "info-sign" : act == "edit" ? "pencil" : "remove")
+												span.glyphicon(class="glyphicon-"+ icon)   #{capitalize(act)}
+						hr
+						block yield
+		
+		include includes/footer
+
+		script(type="text/javascript", src="/app/assets/js/jquery-2.1.4.min.js")
+		script(type="text/javascript", src="/app/assets/bootstrap/js/bootstrap.min.js")
+		script(type="text/javascript", src="/app/assets/js/jquery.terminal-0.8.8.min.js")
+		script(type="text/javascript", src="/app/assets/js/application.js")
+		block script

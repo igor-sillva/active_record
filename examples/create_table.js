@@ -1,6 +1,13 @@
 var drop_tables = true;
 var ActiveRecord = require('../index');
-ActiveRecord.Base.configure_connection('./database.json');
+ActiveRecord.Base.configure_connection({
+	"driver": "mysql",
+	"hostname": "localhost",
+	"port": "3306",
+	"user": "root",
+	"password": "",
+	"database": "active_record"
+});
 ActiveRecord.Base.establish_connection();
 
 exports.createTable = function createTable(){

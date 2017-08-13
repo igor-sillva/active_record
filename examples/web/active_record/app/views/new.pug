@@ -1,0 +1,27 @@
+extends layout.pug
+
+block yield
+	if errors
+		.alert.alert-danger(role="alert")
+			button.close(type="button", data-dismiss="alert")
+				span &times;
+			h4.list-group-item-heading.active #{errors.length} error(s) on #{action_name}
+			ul.list-group-item-text
+			each error in errors
+				li= error
+	- record = JSON.parse(record)
+	form.form-horizontal(method="POST", action="/"+ class_name +"/create")
+		fieldset
+			- delete record['id']
+			- keys = Object.keys(record)
+			each key in keys
+				unless key == "created_at" || key == "updated_at"
+					.form-group
+						label.col-sm-2.control-label(for=key)= key.toUpperCase()
+						.col-sm-10
+							- isPass = key =="password"
+							input.form-control(type=(isPass ? "password" : "text"), value=(isPass ? "" : record[key]), name=key)
+			.form-group
+				.col-sm-offset-2.col-sm-10
+					button.btn.btn-primary(type="submit")
+						span.glyphicon.glyphicon-ok   Confirm
